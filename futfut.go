@@ -1,7 +1,7 @@
 package main
 
 import (
-	traindata "github.com/clausthrane/futfut/traindata"
+	"github.com/spf13/viper"
 	"log"
 	"os"
 )
@@ -9,8 +9,9 @@ import (
 var logger = log.New(os.Stdout, " ", log.Ldate|log.Ltime|log.Lshortfile)
 
 func main() {
-	all, err := traindata.GetStations()
-	if err == nil {
-		logger.Println(all.Stations)
+	viper.SetConfigName("config")
+	err := viper.ReadInConfig()
+	if err != nil {
+		logger.Fatal("No configuration file loaded - using defaults")
 	}
 }
