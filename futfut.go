@@ -1,16 +1,21 @@
 package main
 
 import (
-	traindata "github.com/clausthrane/futfut/traindata"
+	"fmt"
+	"html"
 	"log"
+	"net/http"
 	"os"
 )
 
 var logger = log.New(os.Stdout, " ", log.Ldate|log.Ltime|log.Lshortfile)
 
 func main() {
-	all, err := traindata.GetStations()
-	if err == nil {
-		logger.Println(all.Stations)
-	}
+
+	http.HandleFunc("/bar", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintf(w, "Hello, %q", html.EscapeString(r.URL.Path))
+	})
+
+	http.ListenAndServe(":8080", nil)
+
 }
