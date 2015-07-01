@@ -2,9 +2,8 @@ package main
 
 import (
 	"fmt"
-	"html"
-
 	"github.com/spf13/viper"
+	"html"
 	"log"
 	"net/http"
 	"os"
@@ -23,5 +22,7 @@ func main() {
 		fmt.Fprintf(w, "Hello, %q", html.EscapeString(r.URL.Path))
 	})
 
-	http.ListenAndServe(":8080", nil)
+	port := viper.GetString("host.port")
+	logger.Printf("Starting server on: %s", port)
+	http.ListenAndServe(viper.GetString("host.port"), nil)
 }
