@@ -1,8 +1,9 @@
 //https://github.com/jordan-wright/gophish
-package traindata
+package dsb
 
 import (
 	"encoding/json"
+	"github.com/clausthrane/futfut/models"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -11,14 +12,29 @@ import (
 
 var logger = log.New(os.Stdout, " ", log.Ldate|log.Ltime|log.Lshortfile)
 
-func GetStations() (*StationList, error) {
-	client := http.DefaultClient
-	req, err := buildRequest()
-	resp, err := client.Do(req)
-	if err == nil {
-		return doGetStations(resp)
-	}
-	return nil, err
+type DSBFacade interface {
+	GetStations() chan *models.StationList
+}
+
+func NewDSBFacade() *DSBApi {
+	return &DSBApi{}
+}
+
+type DSBApi struct {
+}
+
+func (*DSBApi) GetStations() chan *models.StationList {
+	replyChan := make(chan *models.StationList)
+	go func() {
+		client := http.DefaultClient
+		req, err := buildRequest()
+		resp, err := client.Do(req)
+		if err == nil {
+			res, _ := doGetStations(resp)
+			replyChan <- res
+		}
+	}()
+	return replyChan
 }
 
 func buildRequest() (req *http.Request, err error) {
@@ -29,7 +45,7 @@ func buildRequest() (req *http.Request, err error) {
 	return req, err
 }
 
-func doGetStations(resp *http.Response) (*StationList, error) {
+func doGetStations(resp *http.Response) (*models.StationList, error) {
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err == nil {
@@ -38,8 +54,8 @@ func doGetStations(resp *http.Response) (*StationList, error) {
 	return nil, err
 }
 
-func unmarshalStations(data []byte) *StationList {
-	stations := []Station{}
+func unmarshalStations(data []byte) *models.StationList {
+	stations := []models.Station{}
 	var container map[string][]json.RawMessage
 	err := json.Unmarshal(data, &container)
 	if err == nil {
@@ -52,11 +68,11 @@ func unmarshalStations(data []byte) *StationList {
 		logger.Println(err)
 	}
 
-	return &StationList{stations}
+	return &models.StationList{stations}
 }
 
-func toStation(data json.RawMessage) (*Station, error) {
-	station := Station{}
+func toStation(data json.RawMessage) (*models.Station, error) {
+	station := models.Station{}
 	err := json.Unmarshal(data, &station)
 	if err == nil {
 		return &station, nil
