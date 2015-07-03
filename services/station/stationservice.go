@@ -33,7 +33,7 @@ func (s *stationService) AllStations() (res *models.StationList, err error) {
 	res = &models.StationList{}
 	select {
 	case res = <-replyChan:
-	case <-time.After(time.Second * 10):
+	case <-time.After(time.Second * 30):
 		logger.Println("Timeout!")
 		err = errors.New("Timeout loading stations")
 	}
