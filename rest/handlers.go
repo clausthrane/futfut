@@ -19,7 +19,8 @@ func (h *RequestHandler) HandleStationsRequest(w http.ResponseWriter, r *http.Re
 	if err == nil {
 		logger.Println("Listing stations", len(allStations.Stations))
 		encoder := json.NewEncoder(w)
-		encoder.Encode(allStations.Stations)
+		encoder.Encode(allStations)
+	} else {
+		http.Error(w, err.Error(), 500)
 	}
-
 }
