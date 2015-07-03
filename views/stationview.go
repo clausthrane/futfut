@@ -2,7 +2,7 @@ package views
 
 import (
 	"github.com/clausthrane/futfut/models"
-	"github.com/clausthrane/futfut/services"
+	"github.com/clausthrane/futfut/services/station"
 	"github.com/clausthrane/futfut/views/dto"
 )
 
@@ -12,12 +12,12 @@ type StationView interface {
 }
 
 // NewStationsView provides a new view for the stations resource
-func NewStationsView(service services.StationsService, converter dto.StationConverter) StationView {
+func NewStationsView(service stationservice.StationsService, converter dto.StationConverter) StationView {
 	return &stationView{service, converter}
 }
 
 type stationView struct {
-	service   services.StationsService
+	service   stationservice.StationsService
 	converter dto.StationConverter
 }
 

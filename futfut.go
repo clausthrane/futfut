@@ -3,7 +3,7 @@ package main
 import (
 	"github.com/clausthrane/futfut/config"
 	"github.com/clausthrane/futfut/rest"
-	"github.com/clausthrane/futfut/services"
+	"github.com/clausthrane/futfut/services/station"
 	"github.com/clausthrane/futfut/views"
 	"github.com/clausthrane/futfut/views/dto"
 	"log"
@@ -20,9 +20,9 @@ func main() {
 }
 
 func webApp() http.Handler {
-	stationsService := services.NewStationsService()
+	stationService := stationservice.NewDSBStationService()
 	stationConverter := dto.NewStationConverter()
-	view := views.NewStationsView(stationsService, stationConverter)
+	view := views.NewStationsView(stationService, stationConverter)
 	requestHandler := api.NewRequestHandler(view)
 	return api.NewAPI(requestHandler)
 }
