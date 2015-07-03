@@ -4,6 +4,7 @@ import (
 	"github.com/clausthrane/futfut/rest"
 	"github.com/clausthrane/futfut/services"
 	"github.com/clausthrane/futfut/views"
+	"github.com/clausthrane/futfut/views/dto"
 	"github.com/spf13/viper"
 	"log"
 	"net/http"
@@ -26,7 +27,8 @@ func main() {
 
 func webApp() http.Handler {
 	stationsService := services.NewStationsService()
-	view := views.NewStationsView(stationsService)
+	stationConverter := dto.NewStationConverter()
+	view := views.NewStationsView(stationsService, stationConverter)
 	requestHandler := api.NewRequestHandler(view)
 	return api.NewAPI(requestHandler)
 }
