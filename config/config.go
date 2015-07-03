@@ -11,6 +11,7 @@ var logger = log.New(os.Stdout, " ", log.Ldate|log.Ltime|log.Lshortfile)
 func init() {
 	viper.SetConfigName("config")
 	viper.AddConfigPath(".")
+	viper.AddConfigPath("$HOME/.futfut")
 	viper.AddConfigPath("/")
 	err := viper.ReadInConfig()
 	if err != nil {
