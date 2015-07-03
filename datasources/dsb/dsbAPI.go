@@ -3,6 +3,7 @@ package dsb
 
 import (
 	"encoding/json"
+	"github.com/clausthrane/futfut/config"
 	"github.com/clausthrane/futfut/models"
 	"io/ioutil"
 	"log"
@@ -11,6 +12,11 @@ import (
 )
 
 var logger = log.New(os.Stdout, " ", log.Ldate|log.Ltime|log.Lshortfile)
+var dsbEndPoint = config.GetString("dsb.endPoint")
+
+func init() {
+	logger.Printf("Using DSB endpoint: %s", dsbEndPoint)
+}
 
 type DSBFacade interface {
 	GetStations() chan *models.StationList
@@ -38,7 +44,7 @@ func (*DSBApi) GetStations() chan *models.StationList {
 }
 
 func buildRequest() (req *http.Request, err error) {
-	req, err = http.NewRequest("GET", "http://traindata.dsb.dk/stationdeparture/opendataprotocol.svc/Station()", nil)
+	req, err = http.NewRequest("GET", dsbEndPoint+"/Station()", nil)
 	if err == nil {
 		req.Header.Add("Accept", "Application/JSON")
 	}

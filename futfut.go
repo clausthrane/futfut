@@ -1,11 +1,11 @@
 package main
 
 import (
+	"github.com/clausthrane/futfut/config"
 	"github.com/clausthrane/futfut/rest"
 	"github.com/clausthrane/futfut/services"
 	"github.com/clausthrane/futfut/views"
 	"github.com/clausthrane/futfut/views/dto"
-	"github.com/spf13/viper"
 	"log"
 	"net/http"
 	"os"
@@ -14,15 +14,9 @@ import (
 var logger = log.New(os.Stdout, " ", log.Ldate|log.Ltime|log.Lshortfile)
 
 func main() {
-	viper.SetConfigName("config")
-	err := viper.ReadInConfig()
-	if err != nil {
-		logger.Fatal("No configuration file loaded - using defaults")
-	}
-
-	port := viper.GetString("host.port")
+	port := config.GetString("host.port")
 	logger.Printf("Starting server on: %s", port)
-	http.ListenAndServe(viper.GetString("host.port"), webApp())
+	http.ListenAndServe(port, webApp())
 }
 
 func webApp() http.Handler {

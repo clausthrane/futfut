@@ -8,7 +8,7 @@ EXPOSE 8080
 
 # Assuming workspace (GOPATH) configured at /go.
 ADD . /go/src/github.com/clausthrane/futfut/
-ADD config.json /go/bin/
+ADD config.json /
 
 # get dependencies and install. TODO use "godep".
 RUN go get github.com/gorilla/mux
