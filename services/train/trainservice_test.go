@@ -5,6 +5,7 @@ import (
 	"github.com/clausthrane/futfut/models"
 	"github.com/clausthrane/futfut/tests/mockdsbfacade"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"testing"
 )
 
@@ -16,7 +17,7 @@ func TestRemoteAPIChannelContentIsPropagated(t *testing.T) {
 	succ := make(chan *models.TrainList, 1)
 
 	remoteAPIMock := new(mockfacade.MockDSB)
-	remoteAPIMock.On("GetTrains").Return(succ, fail)
+	remoteAPIMock.On("GetTrains", mock.Anything, mock.Anything).Return(succ, fail)
 
 	service := New(remoteAPIMock)
 

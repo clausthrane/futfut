@@ -14,7 +14,7 @@ func (m MockDSB) GetStations() (chan *models.StationList, chan error) {
 	return args.Get(0).(chan *models.StationList), args.Get(1).(chan error)
 }
 
-func (m MockDSB) GetTrains() (chan *models.TrainList, chan error) {
-	args := m.Called()
+func (m MockDSB) GetTrains(key string, value string) (chan *models.TrainList, chan error) {
+	args := m.Called(key, value)
 	return args.Get(0).(chan *models.TrainList), args.Get(1).(chan error)
 }

@@ -7,11 +7,20 @@ import (
 	"github.com/clausthrane/futfut/utils"
 	"io"
 	"net/url"
+	"strings"
 )
 
-func (api *DSBApi) GetTrains() (chan *models.TrainList, chan error) {
+func (api *DSBApi) GetTrains(key string, value string) (chan *models.TrainList, chan error) {
+	filter := fmt.Sprintf("%s eq '%s'", key, value)
+	// https://github.com/golang/go/issues/4013
+	return api.getTrainsByQuery(fmt.Sprintf("?$filter=%s", strings.Replace(url.QueryEscape(filter), "+", "%20", -1)))
+}
+
+func (api *DSBApi) getTrainsByQuery(query string) (chan *models.TrainList, chan error) {
 	success, failure := make(chan *models.TrainList), make(chan error)
-	request, err := api.buildRequest(httpGET, fmt.Sprintf("/Queue()?$filter=(%s) ", url.QueryEscape("TrainType eq 'S-tog'")))
+
+	request, err := api.buildRequest(httpGET, "/Queue()"+query)
+
 	if err != nil {
 		utils.SubmitAsync(err, failure)
 	} else {

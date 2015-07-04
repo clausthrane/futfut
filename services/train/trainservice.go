@@ -24,7 +24,7 @@ func New(remoteAPI dsb.DSBFacade) TrainService {
 }
 
 func (s *trainService) AllTrains() (result *models.TrainList, err error) {
-	successChan, errChan := s.remoteAPI.GetTrains()
+	successChan, errChan := s.remoteAPI.GetTrains("TrainType", "S-tog")
 	select {
 	case result := <-successChan:
 		return result, nil
