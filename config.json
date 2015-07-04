@@ -1,4 +1,4 @@
 {
     "host.port" : ":8080",
-    "dsb.endPoint" : "http://traindata.dsb.dk/stationdeparture/opendataprotocol.svc/"
+    "dsb.endPoint" : "http://traindata.dsb.dk/stationdeparture/opendataprotocol.svc"
 }
