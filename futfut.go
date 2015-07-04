@@ -2,10 +2,13 @@ package main
 
 import (
 	"github.com/clausthrane/futfut/config"
+	"github.com/clausthrane/futfut/datasources/dsb"
 	"github.com/clausthrane/futfut/rest"
 	"github.com/clausthrane/futfut/services/station"
+	"github.com/clausthrane/futfut/services/train"
 	"github.com/clausthrane/futfut/views"
 	"github.com/clausthrane/futfut/views/dto"
+
 	"log"
 	"net/http"
 	"os"
@@ -20,9 +23,17 @@ func main() {
 }
 
 func webApp() http.Handler {
-	stationService := stationservice.NewDSBStationService()
+
+	dsbFacade := dsb.NewDSBFacade()
+
+	stationService := stationservice.New(dsbFacade)
 	stationConverter := dto.NewStationConverter()
-	view := views.NewStationsView(stationService, stationConverter)
-	requestHandler := api.NewRequestHandler(view)
+	stationView := views.NewStationsView(stationService, stationConverter)
+
+	trainService := trainservice.New(dsbFacade)
+	trainConverter := dto.NewTrainConverter()
+	trainView := views.NewTrainView(trainService, trainConverter)
+
+	requestHandler := api.NewRequestHandler(stationView, trainView)
 	return api.NewAPI(requestHandler)
 }
