@@ -9,27 +9,50 @@ import (
 	"testing"
 )
 
-func TestHandleStationsRequestWillMarshallViewsResult(t *testing.T) {
+func TestHandleStationsRequestWillMarshallViewsOutput(t *testing.T) {
 	assert := assert.New(t)
 
-	view := new(mockView)
+	view := new(mockStationView)
 	view.On("AllStations").Return(&dto.JSONStationList{1, []dto.JSONStation{{"id", "name", "country"}}}, nil)
 
 	responseWriter := new(mockResponseWriter)
 	responseWriter.On("Write", mock.Anything).Return().Run(func(args mock.Arguments) {
 		a := args.Get(0).([]byte)
-		assert.NotNil(a, "expected come thing!")
-		assert.Equal([]byte(`{"Count":1,"Stations":[{"Id":"id","Name":"name","CountryCode":"country"}]}`), a[:len(a)-1], "is marshalled")
+		assert.NotNil(a)
+		assert.Equal([]byte(`{"Count":1,"Stations":[{"Id":"id","Name":"name","CountryCode":"country"}]}`), a[:len(a)-1])
 	})
 
-	handler := NewRequestHandler(view)
+	handler := NewRequestHandler(view, nil)
 	handler.HandleStationsRequest(responseWriter, &http.Request{})
+}
+
+func TestHandleTrainsRequestWillMarshallViewOutput(t *testing.T) {
+	assert := assert.New(t)
+
+	view := new(mockTrainView)
+
+	viewResponse := &dto.JSONTrainList{1, []dto.JSONTrain{{1, 2, "hello"}}}
+	view.On("AllTrains").Return(viewResponse, nil)
+
+	responseWriterCalled := false
+	responseWriter := new(mockResponseWriter)
+	responseWriter.On("Write", mock.Anything).Return().Run(func(args mock.Arguments) {
+		a := args.Get(0).([]byte)
+		assert.NotNil(a)
+		expected := `{"Count":1,"Trains":[{"TrainNumber":1,"CurrentStationId":2,"DestinationName":"hello"}]}`
+		assert.Equal([]byte(expected), a[:len(a)-1])
+		responseWriterCalled = true
+	})
+
+	handler := NewRequestHandler(nil, view)
+	handler.HandleTrainsRequest(responseWriter, &http.Request{})
+	assert.True(responseWriterCalled, "responsWriter has not been invoked")
 }
 
 func TestHttpErrorCodes(t *testing.T) {
 	assert := assert.New(t)
 
-	view := new(mockView)
+	view := new(mockStationView)
 	view.On("AllStations").Return(nil, errors.New("some message"))
 
 	responseWriter := new(mockResponseWriter)
@@ -41,15 +64,28 @@ func TestHttpErrorCodes(t *testing.T) {
 	})
 	responseWriter.On("WriteHeader", 500).Return()
 
-	handler := NewRequestHandler(view)
+	handler := NewRequestHandler(view, nil)
 	handler.HandleStationsRequest(responseWriter, &http.Request{})
 }
 
-type mockView struct {
+type mockTrainView struct {
 	mock.Mock
 }
 
-func (m mockView) AllStations() (list *dto.JSONStationList, err error) {
+func (m mockTrainView) AllTrains() (list *dto.JSONTrainList, err error) {
+	args := m.Called()
+	if e := args.Get(1); e == nil {
+		return args.Get(0).(*dto.JSONTrainList), nil
+	} else {
+		return nil, e.(error)
+	}
+}
+
+type mockStationView struct {
+	mock.Mock
+}
+
+func (m mockStationView) AllStations() (list *dto.JSONStationList, err error) {
 	args := m.Called()
 	if e := args.Get(1); e == nil {
 		return args.Get(0).(*dto.JSONStationList), nil
@@ -58,9 +94,13 @@ func (m mockView) AllStations() (list *dto.JSONStationList, err error) {
 	}
 }
 
-func (m mockView) GetStations(countryCode string, countryName string, page int, pageSize int) (*dto.JSONStationList, error) {
+func (m mockStationView) GetStations(countryCode string, countryName string, page int, pageSize int) (*dto.JSONStationList, error) {
 	args := m.Called(countryCode, countryName, page, pageSize)
-	return args.Get(0).(*dto.JSONStationList), args.Get(1).(error)
+	if e := args.Get(1); e == nil {
+		return args.Get(0).(*dto.JSONStationList), nil
+	} else {
+		return nil, e.(error)
+	}
 }
 
 type mockResponseWriter struct {

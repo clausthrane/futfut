@@ -2,7 +2,6 @@ package api
 
 import (
 	"github.com/gorilla/mux"
-	//	"html/template"
 	"log"
 	"net/http"
 	"os"
@@ -15,6 +14,8 @@ type handlerWrapper func(http.Handler) http.HandlerFunc
 func NewAPI(requestHandler *RequestHandler) http.Handler {
 	api := mux.NewRouter()
 	api.HandleFunc("/api/stations", chainHandlers(requestHandler.HandleStationsRequest, allowCORS))
+	api.HandleFunc("/api/trains", chainHandlers(requestHandler.HandleTrainsRequest, allowCORS))
+
 	api.PathPrefix("/").Handler(http.FileServer(http.Dir("./web/")))
 	return api
 }
