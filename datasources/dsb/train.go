@@ -2,13 +2,15 @@ package dsb
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/clausthrane/futfut/models"
 	"github.com/clausthrane/futfut/utils"
+	"net/url"
 )
 
 func (api *DSBApi) GetTrains() (chan *models.TrainList, chan error) {
 	success, failure := make(chan *models.TrainList), make(chan error)
-	request, err := api.buildRequest(httpGET, "/Queue()")
+	request, err := api.buildRequest(httpGET, fmt.Sprintf("/Queue()?$filter=(%s) ", url.QueryEscape("TrainType eq 'S-tog'")))
 	if err != nil {
 		utils.SubmitAsync(err, failure)
 	} else {
