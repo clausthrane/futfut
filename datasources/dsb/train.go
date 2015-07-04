@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/clausthrane/futfut/models"
 	"github.com/clausthrane/futfut/utils"
+	"io"
 	"net/url"
 )
 
@@ -14,12 +15,13 @@ func (api *DSBApi) GetTrains() (chan *models.TrainList, chan error) {
 	if err != nil {
 		utils.SubmitAsync(err, failure)
 	} else {
-		q := NewQuery(failure, request, func(data []byte) {
+		q := NewQuery(failure, request, func(body io.Reader) {
 			var container map[string][]json.RawMessage
-			if err := json.Unmarshal(data, &container); err != nil {
+			if err := json.NewDecoder(body).Decode(&container); err != nil {
 				failure <- err
 			} else {
 				success <- convertTrainJSONList(container["d"])
+				logger.Println("Completed request")
 			}
 		})
 		api.DoAsync(q)

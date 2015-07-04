@@ -7,7 +7,6 @@ import (
 	"github.com/clausthrane/futfut/config"
 	"github.com/clausthrane/futfut/models"
 	"io"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -60,7 +59,8 @@ func (api *DSBApi) DoAsync(q APIQuery) {
 
 func handleResponse(query APIQuery, resp *http.Response) {
 	handleGenericResponse(query.GetFailureChannel(), resp, func(body io.ReadCloser) {
-		handleBody(query, body)
+		defer body.Close()
+		query.receive(body)
 	})
 }
 
@@ -71,7 +71,7 @@ type bodyReader func(io.ReadCloser)
 // Checks status codes and outputs on 'fail' when receiving a status >= 300
 // otherwise the body of the response is applied to the 'concreteResponseHandler'
 func handleGenericResponse(fail chan error, resp *http.Response, bodyHandler bodyReader) {
-	logger.Printf("Handling %d response", resp.StatusCode)
+	logger.Printf("Respons was %d", resp.StatusCode)
 	switch {
 	case resp.StatusCode >= 500:
 		fail <- errors.New(fmt.Sprintf("remote resource is unavailable: %d", resp.StatusCode))
@@ -80,14 +80,4 @@ func handleGenericResponse(fail chan error, resp *http.Response, bodyHandler bod
 	case 300 > resp.StatusCode:
 		bodyHandler(resp.Body)
 	}
-}
-
-func handleBody(query APIQuery, body io.ReadCloser) {
-	defer body.Close()
-	bytes, err := ioutil.ReadAll(body)
-	if err == nil {
-		logger.Printf("Returning %d bytes", len(bytes))
-		query.receive(bytes)
-	}
-	query.GetFailureChannel() <- err
 }

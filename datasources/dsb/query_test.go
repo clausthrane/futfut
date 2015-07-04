@@ -2,6 +2,7 @@ package dsb
 
 import (
 	"github.com/stretchr/testify/assert"
+	"io"
 	"net/http"
 	"testing"
 )
@@ -14,7 +15,7 @@ func TestQuery(t *testing.T) {
 
 	called := false
 
-	q := NewQuery(bailoutChannel, request, func(b []byte) {
+	q := NewQuery(bailoutChannel, request, func(b io.Reader) {
 		called = true
 	})
 

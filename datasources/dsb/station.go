@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/clausthrane/futfut/models"
 	"github.com/clausthrane/futfut/utils"
+	"io"
 )
 
 func (api *DSBApi) GetStations() (chan *models.StationList, chan error) {
@@ -12,9 +13,9 @@ func (api *DSBApi) GetStations() (chan *models.StationList, chan error) {
 	if err != nil {
 		utils.SubmitAsync(err, failure)
 	} else {
-		q := NewQuery(failure, request, func(data []byte) {
+		q := NewQuery(failure, request, func(body io.Reader) {
 			var container map[string][]json.RawMessage
-			if err := json.Unmarshal(data, &container); err != nil {
+			if err := json.NewDecoder(body).Decode(&container); err != nil {
 				failure <- err
 			} else {
 				success <- convertStationJSONList(container["d"])
