@@ -35,7 +35,6 @@ func (c stationConverter) ConvertStationList(list *models.StationList) *JSONStat
 	for _, s := range list.Stations {
 		dtos = append(dtos, c.ConvertStation(&s))
 	}
-
 	return &JSONStationList{len(list.Stations), dtos}
 }
 
