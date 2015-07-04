@@ -40,6 +40,7 @@ func (m mockDSB) GetStations() (chan *models.StationList, chan error) {
 	return args.Get(0).(chan *models.StationList), args.Get(1).(chan error)
 }
 
-func (m mockDSB) SetEndpoint(endPoint string) {
-	m.Called()
+func (m mockDSB) GetTrains() (chan *models.TrainList, chan error) {
+	args := m.Called()
+	return args.Get(0).(chan *models.TrainList), args.Get(1).(chan error)
 }

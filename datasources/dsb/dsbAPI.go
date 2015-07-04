@@ -2,7 +2,6 @@
 package dsb
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/clausthrane/futfut/config"
@@ -14,16 +13,16 @@ import (
 	"os"
 )
 
+const (
+	httpGET = "GET"
+)
+
 var logger = log.New(os.Stdout, " ", log.Ldate|log.Ltime|log.Lshortfile)
 var defaultEndPoint = config.GetString("dsb.endPoint")
 
-func init() {
-	logger.Printf("Using DSB endpoint: %s", defaultEndPoint)
-}
-
 type DSBFacade interface {
 	GetStations() (chan *models.StationList, chan error)
-	SetEndpoint(string)
+	GetTrains() (chan *models.TrainList, chan error)
 }
 
 func NewDSBFacade() *DSBApi {
@@ -34,36 +33,44 @@ type DSBApi struct {
 	dsbEndpoint string
 }
 
-func (api *DSBApi) SetEndpoint(endPoint string) {
+func (api *DSBApi) setEndpoint(endPoint string) {
 	api.dsbEndpoint = endPoint
 }
 
-func (api *DSBApi) GetStations() (chan *models.StationList, chan error) {
-	replyChan := make(chan *models.StationList)
-	errChan := make(chan error)
-	go func() {
-		client := http.DefaultClient
-		req, err := api.buildRequest()
-		resp, err := client.Do(req)
-		if err == nil {
-			handleGetStationsResponse(replyChan, errChan, resp)
-		} else {
-			errChan <- err
-		}
-	}()
-	return replyChan, errChan
-}
-
-func (api *DSBApi) buildRequest() (req *http.Request, err error) {
+func (api *DSBApi) buildRequest(method string, path string) (req *http.Request, err error) {
 	logger.Printf("Preparing request to: %s", api.dsbEndpoint)
-	req, err = http.NewRequest("GET", (*api).dsbEndpoint+"/Station()", nil)
+	req, err = http.NewRequest(method, (*api).dsbEndpoint+path, nil)
 	if err == nil {
 		req.Header.Add("Accept", "Application/JSON")
 	}
 	return req, err
 }
 
-func handleGetStationsResponse(succ chan *models.StationList, fail chan error, resp *http.Response) {
+func (api *DSBApi) DoAsync(q APIQuery) {
+	go func() {
+		logger.Printf("Performing request: %s", q.GetRequest())
+		response, responsErr := http.DefaultClient.Do(q.GetRequest())
+		if responsErr != nil {
+			q.GetFailureChannel() <- responsErr
+			return
+		}
+		handleResponse(q, response)
+	}()
+}
+
+func handleResponse(query APIQuery, resp *http.Response) {
+	handleGenericResponse(query.GetFailureChannel(), resp, func(body io.ReadCloser) {
+		handleBody(query, body)
+	})
+}
+
+type bodyReader func(io.ReadCloser)
+
+// handleGenericResponse takes care of standard error codes
+//
+// Checks status codes and outputs on 'fail' when receiving a status >= 300
+// otherwise the body of the response is applied to the 'concreteResponseHandler'
+func handleGenericResponse(fail chan error, resp *http.Response, concreteReponseHandler bodyReader) {
 	logger.Printf("Handling %d response", resp.StatusCode)
 	switch {
 	case resp.StatusCode >= 500:
@@ -71,51 +78,15 @@ func handleGetStationsResponse(succ chan *models.StationList, fail chan error, r
 	case 500 > resp.StatusCode && resp.StatusCode >= 400:
 		fail <- errors.New(fmt.Sprintf("Internal Server Error: %d", resp.StatusCode))
 	case 300 > resp.StatusCode:
-		{
-			res, marshalError := handleGetStationsBody(resp.Body)
-			if marshalError == nil {
-				succ <- res
-			} else {
-				fail <- marshalError
-			}
-		}
+		concreteReponseHandler(resp.Body)
 	}
 }
 
-func handleGetStationsBody(body io.ReadCloser) (*models.StationList, error) {
+func handleBody(query APIQuery, body io.ReadCloser) {
 	defer body.Close()
 	bytes, err := ioutil.ReadAll(body)
 	if err == nil {
-		return unmarshalStations(bytes)
+		query.receive(bytes)
 	}
-	return nil, err
-}
-
-func unmarshalStations(data []byte) (*models.StationList, error) {
-	stations := []models.Station{}
-	var container map[string][]json.RawMessage
-	err := json.Unmarshal(data, &container)
-	if err == nil {
-		for _, item := range container["d"] {
-			if station, err := toStation(item); err == nil {
-				stations = append(stations, *station)
-			} else {
-				// skipping element; hoping for a partial result
-				logger.Println(err)
-			}
-		}
-		return &models.StationList{stations}, nil
-	} else {
-		return nil, err
-	}
-
-}
-
-func toStation(data json.RawMessage) (*models.Station, error) {
-	station := models.Station{}
-	err := json.Unmarshal(data, &station)
-	if err == nil {
-		return &station, nil
-	}
-	return nil, err
+	query.GetFailureChannel() <- err
 }

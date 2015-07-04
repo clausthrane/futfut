@@ -1,13 +1,14 @@
 package dsb
 
 import (
+	"encoding/json"
 	"github.com/clausthrane/futfut/tests/mockserver"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
 )
 
-var testdata = `{
+var stationTestData = `{
     "d": [
         {
             "__metadata": {
@@ -55,7 +56,7 @@ var testdata = `{
     ]
 }`
 
-var corrupttestdata = `{
+var corruptStationTestData = `{
     "d": [
         {
             "__metadata": {
@@ -81,12 +82,40 @@ var corrupttestdata = `{
     ]
 }`
 
+func TestBuildRequest(t *testing.T) {
+	assert := assert.New(t)
+
+	apiFacade := NewDSBFacade()
+	apiFacade.setEndpoint("http://example.com")
+
+	out, noerr := apiFacade.buildRequest(httpGET, "/hello")
+	headerValue := out.Header.Get("Accept")
+	url := *out.URL
+
+	assert.Nil(noerr, "no errors expected here")
+	assert.Equal("Application/JSON", headerValue, "accept type should be JSON")
+	assert.Equal("http://example.com/hello", url.String(), "expecting url to have been assembled")
+}
+
+func TestJsonUnmarshaller(t *testing.T) {
+	assert := assert.New(t)
+
+	var container map[string][]json.RawMessage
+	err := json.Unmarshal([]byte(`en lille nisse rejste`), &container)
+
+	assert.NotNil(err, "error expected")
+}
+
 func TestUnmarshalStations(t *testing.T) {
 	assert := assert.New(t)
 
-	out, err := unmarshalStations([]byte(testdata))
-
+	var container map[string][]json.RawMessage
+	err := json.Unmarshal([]byte(stationTestData), &container)
 	assert.Nil(err, "no errors expected")
+
+	rawList := container["d"]
+	out := convertStationJSONList(rawList)
+
 	assert.Equal(4, len(out.Stations), "all stations should have been unmarshalled")
 	assert.Equal("Göteborg", out.Stations[0].Name)
 	assert.Equal("7400003", out.Stations[1].UIC)
@@ -97,28 +126,16 @@ func TestUnmarshalStations(t *testing.T) {
 func TestUnmarshalStationsFails(t *testing.T) {
 	assert := assert.New(t)
 
-	out, err := unmarshalStations([]byte(`en lille nisse rejste`))
+	var container map[string][]json.RawMessage
+	err := json.Unmarshal([]byte(corruptStationTestData), &container)
+	assert.Nil(err, "no errors expected")
 
-	assert.Nil(out, "only error expected")
-	assert.NotNil(err, "error expected")
-
-	out, err = unmarshalStations([]byte(corrupttestdata))
+	rawList := container["d"]
+	out := convertStationJSONList(rawList)
 
 	assert.Nil(err, "error not expected")
 	assert.NotNil(out, "result expected")
 	assert.Equal(1, len(out.Stations))
-}
-
-func TestBuildRequestSetsJSONHeadder(t *testing.T) {
-	assert := assert.New(t)
-
-	out, err := NewDSBFacade().buildRequest()
-
-	assert.Nil(err, "no errors expected")
-	assert.NotNil(out, "output expected")
-
-	headerValue := out.Header.Get("Accept")
-	assert.Equal("Application/JSON", headerValue, "accept type should be JSON")
 }
 
 func TestGetStations(t *testing.T) {
@@ -127,7 +144,7 @@ func TestGetStations(t *testing.T) {
 	mockserver.HttpServerWithStatusCode(7771, 500)
 
 	client := NewDSBFacade()
-	client.SetEndpoint("http://localhost:7771")
+	client.setEndpoint("http://localhost:7771")
 
 	var expectedError error
 	succ, fail := client.GetStations()
