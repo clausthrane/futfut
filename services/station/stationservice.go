@@ -22,13 +22,13 @@ type StationsService interface {
 }
 
 // New returns a new StationService
-func New(remoteAPI dsb.DSBFacade, timeout int) StationsService {
-	return &stationService{remoteAPI, timeout}
+func New(remoteAPI dsb.DSBFacade) StationsService {
+	return &stationService{remoteAPI, 0}
 }
 
 // NewDSBStationService returns a new StationService backed by a default DSBFacade
 func NewDSBStationService() StationsService {
-	return New(dsb.NewDSBFacade(), 30)
+	return New(dsb.NewDSBFacade())
 }
 
 // AllStations returns all available stations provided by the underlying DSBFacade

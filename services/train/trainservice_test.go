@@ -1,4 +1,4 @@
-package stationservice
+package trainservice
 
 import (
 	"errors"
@@ -12,21 +12,21 @@ func TestRemoteAPIChannelContentIsPropagated(t *testing.T) {
 	assert := assert.New(t)
 
 	// Buf size 1 so everyting can run in 1 go routine
-	succ := make(chan *models.StationList, 1)
 	fail := make(chan error, 1)
+	succ := make(chan *models.TrainList, 1)
 
 	remoteAPIMock := new(mockfacade.MockDSB)
-	remoteAPIMock.On("GetStations").Return(succ, fail)
+	remoteAPIMock.On("GetTrains").Return(succ, fail)
 
 	service := New(remoteAPIMock)
 
-	succ <- &models.StationList{}
-	out, err := service.AllStations()
+	succ <- &models.TrainList{}
+	out, err := service.AllTrains()
 	assert.NotNil(out, "expecting output")
 	assert.Nil(err, "errors not expected")
 
 	fail <- errors.New("Aww")
-	out, err = service.AllStations()
+	out, err = service.AllTrains()
 	assert.NotNil(err, "expecting err")
 	assert.Nil(out, "output not expected")
 }
