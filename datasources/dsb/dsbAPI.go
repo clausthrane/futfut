@@ -17,7 +17,7 @@ const (
 	httpGET = "GET"
 )
 
-var logger = log.New(os.Stdout, " ", log.Ldate|log.Ltime|log.Lshortfile)
+var logger = log.New(os.Stdout, " ", log.Ldate|log.Lmicroseconds|log.Lshortfile)
 var defaultEndPoint = config.GetString("dsb.endPoint")
 
 type DSBFacade interface {
@@ -38,7 +38,7 @@ func (api *DSBApi) setEndpoint(endPoint string) {
 }
 
 func (api *DSBApi) buildRequest(method string, path string) (req *http.Request, err error) {
-	logger.Printf("Preparing request to: %s", api.dsbEndpoint)
+	logger.Printf("Using DSB endpoint: %s", api.dsbEndpoint)
 	req, err = http.NewRequest(method, (*api).dsbEndpoint+path, nil)
 	if err == nil {
 		req.Header.Add("Accept", "Application/JSON")
@@ -48,7 +48,7 @@ func (api *DSBApi) buildRequest(method string, path string) (req *http.Request, 
 
 func (api *DSBApi) DoAsync(q APIQuery) {
 	go func() {
-		logger.Printf("Performing request: %s", q.GetRequest())
+		logger.Printf("Performing request: %s %s", q.GetRequest().Method, q.GetRequest().URL)
 		response, responsErr := http.DefaultClient.Do(q.GetRequest())
 		if responsErr != nil {
 			q.GetFailureChannel() <- responsErr
@@ -70,7 +70,7 @@ type bodyReader func(io.ReadCloser)
 //
 // Checks status codes and outputs on 'fail' when receiving a status >= 300
 // otherwise the body of the response is applied to the 'concreteResponseHandler'
-func handleGenericResponse(fail chan error, resp *http.Response, concreteReponseHandler bodyReader) {
+func handleGenericResponse(fail chan error, resp *http.Response, bodyHandler bodyReader) {
 	logger.Printf("Handling %d response", resp.StatusCode)
 	switch {
 	case resp.StatusCode >= 500:
@@ -78,7 +78,7 @@ func handleGenericResponse(fail chan error, resp *http.Response, concreteReponse
 	case 500 > resp.StatusCode && resp.StatusCode >= 400:
 		fail <- errors.New(fmt.Sprintf("Internal Server Error: %d", resp.StatusCode))
 	case 300 > resp.StatusCode:
-		concreteReponseHandler(resp.Body)
+		bodyHandler(resp.Body)
 	}
 }
 
@@ -86,6 +86,7 @@ func handleBody(query APIQuery, body io.ReadCloser) {
 	defer body.Close()
 	bytes, err := ioutil.ReadAll(body)
 	if err == nil {
+		logger.Printf("Returning %d bytes", len(bytes))
 		query.receive(bytes)
 	}
 	query.GetFailureChannel() <- err
