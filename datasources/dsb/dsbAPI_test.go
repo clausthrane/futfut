@@ -2,6 +2,7 @@ package dsb
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/clausthrane/futfut/tests/mockserver"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -138,7 +139,7 @@ func TestUnmarshalStationsFails(t *testing.T) {
 	assert.Equal(1, len(out.Stations))
 }
 
-func TestGetStations(t *testing.T) {
+func TestGetStationsErrors(t *testing.T) {
 	assert := assert.New(t)
 
 	mockserver.HttpServerWithStatusCode(7771, 500)
@@ -156,4 +157,26 @@ func TestGetStations(t *testing.T) {
 		t.Error("Not supposed to timeout for local mock server")
 	}
 	assert.NotNil(expectedError, "fdsf")
+}
+
+func TestWithMockRemote(t *testing.T) {
+	assert := assert.New(t)
+
+	mockserver.HttpServerDSBTestApi(t, 44444)
+
+	remoteAPI := NewDSBFacadeWithEndpoint("http://localhost:44444")
+
+	successC, errC := remoteAPI.GetStations()
+
+	resultSize := 0
+
+	select {
+	case response := <-successC:
+		resultSize = len(response.Stations)
+	case err := <-errC:
+		fmt.Printf("Error %s", err)
+	}
+
+	fmt.Printf("Response size %d", resultSize)
+	assert.Equal(349, resultSize)
 }

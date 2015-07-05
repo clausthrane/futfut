@@ -28,6 +28,10 @@ func NewDSBFacade() *DSBApi {
 	return &DSBApi{defaultEndPoint}
 }
 
+func NewDSBFacadeWithEndpoint(endPoint string) *DSBApi {
+	return &DSBApi{endPoint}
+}
+
 type DSBApi struct {
 	dsbEndpoint string
 }
