@@ -11,9 +11,14 @@ import (
 )
 
 func (api *DSBApi) GetTrains(key string, value string) (chan *models.TrainList, chan error) {
-	filter := fmt.Sprintf("%s eq '%s'", key, value)
-	// https://github.com/golang/go/issues/4013
-	return api.getTrainsByQuery(fmt.Sprintf("?$filter=%s", strings.Replace(url.QueryEscape(filter), "+", "%20", -1)))
+	if len(key) == 0 && len(value) == 0 {
+		return api.getTrainsByQuery("")
+	} else {
+		filter := fmt.Sprintf("%s eq '%s'", key, value)
+		// https://github.com/golang/go/issues/4013
+		escapedFilter := fmt.Sprintf("?$filter=%s", strings.Replace(url.QueryEscape(filter), "+", "%20", -1))
+		return api.getTrainsByQuery(escapedFilter)
+	}
 }
 
 func (api *DSBApi) getTrainsByQuery(query string) (chan *models.TrainList, chan error) {
