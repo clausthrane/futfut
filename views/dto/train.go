@@ -11,9 +11,11 @@ var logger = log.New(os.Stdout, " ", log.Ldate|log.Ltime|log.Lshortfile)
 
 // JSONTrain is the external representation of models.Train
 type JSONTrain struct {
-	TrainNumber      int
-	CurrentStationId int
-	DestinationName  string
+	TrainNumber        int
+	StationId          int
+	DestinationName    string
+	ScheduledArrival   string
+	ScheduledDeparture string
 }
 
 // JSONTrainList is the external representation of models.TrainList
@@ -49,13 +51,15 @@ func (c trainConverter) ConvertTrain(t *models.Train) (*JSONTrain, error) {
 	trainNumner, err := strconv.Atoi(t.TrainNumber)
 	currentStationId, err := strconv.Atoi(t.StationUic)
 	if err != nil {
-		logger.Printf("Failed to covert %s, due to %s", t, err.Error())
 		return nil, err
-	} else {
-		return &JSONTrain{
-			trainNumner,
-			currentStationId,
-			t.DestinationName,
-		}, nil
 	}
+
+	return &JSONTrain{
+		trainNumner,
+		currentStationId,
+		t.DestinationName,
+		t.HumanReadableArrivalDate(),
+		t.HumanReadableDepartureDate(),
+	}, nil
+
 }
