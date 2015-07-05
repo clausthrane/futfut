@@ -13,7 +13,7 @@ import (
 
 const defaultCacheTime = 0
 
-var logger = log.New(os.Stdout, " ", log.Ldate|log.Ltime|log.Lshortfile)
+var logger = log.New(os.Stdout, " ", log.Ldate|log.Lmicroseconds|log.Lshortfile)
 
 type cachingfacade struct {
 	localcache *cache.Cache
