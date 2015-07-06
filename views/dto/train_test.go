@@ -27,7 +27,7 @@ func TestTimeRegex(t *testing.T) {
 func TestConvertTrain(t *testing.T) {
 	assert := assert.New(t)
 
-	in := &models.Train{
+	in := &models.TrainEvent{
 		"fc63491b-8b93-4d50-9482-39cdc31f5024",
 		"8600761",
 		"S-tog",

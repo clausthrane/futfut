@@ -16,7 +16,7 @@ func TestHumanReadableDateConversion(t *testing.T) {
 func TestHumanReadableArrivalDate(t *testing.T) {
 	assert := assert.New(t)
 
-	train := Train{"event_id1",
+	train := TrainEvent{"event_id1",
 		"station_id2",
 		"type",
 		"end_dest",

@@ -23,11 +23,11 @@ func TestTrainViewPanicsWhenNotInitialized(t *testing.T) {
 func TestTrainView(t *testing.T) {
 	assert := assert.New(t)
 
-	emptyList := &models.TrainList{nil}
+	emptyList := &models.TrainEventList{nil}
 	service := new(mockTrainService)
 	service.On("AllTrains").Return(emptyList, nil)
 
-	dtos := &dto.JSONTrainList{1, []dto.JSONTrain{{42, 10, "dest", "", ""}}}
+	dtos := &dto.JSONTrainEventList{1, []dto.JSONTrainEvent{{42, 10, "dest", "", ""}}}
 	converter := new(mockTrainConverter)
 	converter.On("ConvertTrainList", emptyList).Return(dtos)
 
@@ -76,53 +76,53 @@ type mockTrainService struct {
 	mock.Mock
 }
 
-func (m *mockTrainService) AllTrains() (result *models.TrainList, err error) {
+func (m *mockTrainService) AllTrains() (result *models.TrainEventList, err error) {
 	args := m.Called()
 	e := args.Get(1)
 	if e != nil {
 		return nil, e.(error)
 	} else {
-		return args.Get(0).(*models.TrainList), nil
+		return args.Get(0).(*models.TrainEventList), nil
 	}
 }
 
-func (m *mockTrainService) TrainsByKeyValue(key string, value string) (result *models.TrainList, err error) {
+func (m *mockTrainService) TrainsByKeyValue(key string, value string) (result *models.TrainEventList, err error) {
 	args := m.Called(key, value)
 	e := args.Get(1)
 	if e != nil {
 		return nil, e.(error)
 	} else {
-		return args.Get(0).(*models.TrainList), nil
+		return args.Get(0).(*models.TrainEventList), nil
 	}
 }
 
-func (m *mockTrainService) TrainsFromStation(stationID services.StationID) (result *models.TrainList, err error) {
+func (m *mockTrainService) TrainsFromStation(stationID services.StationID) (result *models.TrainEventList, err error) {
 	args := m.Called(stationID)
 	e := args.Get(1)
 	if e != nil {
 		return nil, e.(error)
 	} else {
-		return args.Get(0).(*models.TrainList), nil
+		return args.Get(0).(*models.TrainEventList), nil
 	}
 }
 
-func (m *mockTrainService) Stops(trainID services.TrainID) (result *models.TrainList, err error) {
+func (m *mockTrainService) Stops(trainID services.TrainID) (result *models.TrainEventList, err error) {
 	args := m.Called(trainID)
 	e := args.Get(1)
 	if e != nil {
 		return nil, e.(error)
 	} else {
-		return args.Get(0).(*models.TrainList), nil
+		return args.Get(0).(*models.TrainEventList), nil
 	}
 }
 
-func (m *mockTrainService) DeparturesBetween(from services.StationID, to services.StationID) (result *models.TrainList, err error) {
+func (m *mockTrainService) DeparturesBetween(from services.StationID, to services.StationID) (result *models.TrainEventList, err error) {
 	args := m.Called(from, to)
 	e := args.Get(1)
 	if e != nil {
 		return nil, e.(error)
 	} else {
-		return args.Get(0).(*models.TrainList), nil
+		return args.Get(0).(*models.TrainEventList), nil
 	}
 }
 
@@ -130,17 +130,17 @@ type mockTrainConverter struct {
 	mock.Mock
 }
 
-func (m mockTrainConverter) ConvertTrainList(list *models.TrainList) *dto.JSONTrainList {
+func (m mockTrainConverter) ConvertTrainList(list *models.TrainEventList) *dto.JSONTrainEventList {
 	args := m.Called(list)
-	return args.Get(0).(*dto.JSONTrainList)
+	return args.Get(0).(*dto.JSONTrainEventList)
 }
 
-func (m mockTrainConverter) ConvertTrain(t *models.Train) (*dto.JSONTrain, error) {
+func (m mockTrainConverter) ConvertTrain(t *models.TrainEvent) (*dto.JSONTrainEvent, error) {
 	args := m.Called(t)
 	e := args.Get(1)
 	if e != nil {
 		return nil, e.(error)
 	} else {
-		return args.Get(0).(*dto.JSONTrain), nil
+		return args.Get(0).(*dto.JSONTrainEvent), nil
 	}
 }

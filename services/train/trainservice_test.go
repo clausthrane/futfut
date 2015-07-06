@@ -14,14 +14,14 @@ func TestRemoteAPIChannelContentIsPropagated(t *testing.T) {
 
 	// Buf size 1 so everyting can run in 1 go routine
 	fail := make(chan error, 1)
-	succ := make(chan *models.TrainList, 1)
+	succ := make(chan *models.TrainEventList, 1)
 
 	remoteAPIMock := new(mockfacade.MockDSB)
 	remoteAPIMock.On("GetTrains", mock.Anything, mock.Anything).Return(succ, fail)
 
 	service := New(remoteAPIMock)
 
-	succ <- &models.TrainList{}
+	succ <- &models.TrainEventList{}
 	out, err := service.AllTrains()
 	assert.NotNil(out, "expecting output")
 	assert.Nil(err, "errors not expected")

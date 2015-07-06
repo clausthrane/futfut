@@ -18,7 +18,7 @@ func TestCachingFacade(t *testing.T) {
 	testValue := "value"
 
 	fail := make(chan error, 1)
-	succ := make(chan *models.TrainList, 1)
+	succ := make(chan *models.TrainEventList, 1)
 
 	callCount := 0
 	remoteAPIMock := new(mockfacade.MockDSB)
@@ -31,7 +31,7 @@ func TestCachingFacade(t *testing.T) {
 	succ1, fail1 := facadeUnderTest.GetTrains(testKey, testValue)
 
 	// Pretend to get stuff from the wire
-	succ <- &models.TrainList{}
+	succ <- &models.TrainEventList{}
 
 	assertSuccess(t, succ1, fail1)
 
@@ -41,7 +41,7 @@ func TestCachingFacade(t *testing.T) {
 	assert.Equal(1, callCount)
 }
 
-func assertSuccess(t *testing.T, success chan *models.TrainList, failure chan error) {
+func assertSuccess(t *testing.T, success chan *models.TrainEventList, failure chan error) {
 	select {
 	case <-success:
 		t.Log("Got success")

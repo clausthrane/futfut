@@ -32,7 +32,7 @@ func TestHandleTrainsRequestWillMarshallViewOutput(t *testing.T) {
 
 	view := new(mockTrainView)
 
-	viewResponse := &dto.JSONTrainList{1, []dto.JSONTrain{{1, 2, "hello", "", ""}}}
+	viewResponse := &dto.JSONTrainEventList{1, []dto.JSONTrainEvent{{1, 2, "hello", "", ""}}}
 	view.On("AllTrains").Return(viewResponse, nil)
 
 	responseWriterCalled := false
@@ -74,19 +74,19 @@ type mockTrainView struct {
 	mock.Mock
 }
 
-func (m mockTrainView) AllTrains() (list *dto.JSONTrainList, err error) {
+func (m mockTrainView) AllTrains() (list *dto.JSONTrainEventList, err error) {
 	args := m.Called()
 	if e := args.Get(1); e == nil {
-		return args.Get(0).(*dto.JSONTrainList), nil
+		return args.Get(0).(*dto.JSONTrainEventList), nil
 	} else {
 		return nil, e.(error)
 	}
 }
 
-func (m mockTrainView) DeparturesBetween(from services.StationID, to services.StationID) (*dto.JSONTrainList, error) {
+func (m mockTrainView) DeparturesBetween(from services.StationID, to services.StationID) (*dto.JSONTrainEventList, error) {
 	args := m.Called()
 	if e := args.Get(1); e == nil {
-		return args.Get(0).(*dto.JSONTrainList), nil
+		return args.Get(0).(*dto.JSONTrainEventList), nil
 	} else {
 		return nil, e.(error)
 	}

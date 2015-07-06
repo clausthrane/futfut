@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-func (api *DSBApi) GetTrains(key string, value string) (chan *models.TrainList, chan error) {
+func (api *DSBApi) GetTrains(key string, value string) (chan *models.TrainEventList, chan error) {
 	if len(key) == 0 && len(value) == 0 {
 		return api.getTrainsByQuery("")
 	} else {
@@ -21,8 +21,8 @@ func (api *DSBApi) GetTrains(key string, value string) (chan *models.TrainList, 
 	}
 }
 
-func (api *DSBApi) getTrainsByQuery(query string) (chan *models.TrainList, chan error) {
-	success, failure := make(chan *models.TrainList), make(chan error)
+func (api *DSBApi) getTrainsByQuery(query string) (chan *models.TrainEventList, chan error) {
+	success, failure := make(chan *models.TrainEventList), make(chan error)
 
 	request, err := api.buildRequest(httpGET, "/Queue()"+query)
 
@@ -43,15 +43,15 @@ func (api *DSBApi) getTrainsByQuery(query string) (chan *models.TrainList, chan 
 	return success, failure
 }
 
-func convertTrainJSONList(items []json.RawMessage) *models.TrainList {
-	result := []models.Train{}
+func convertTrainJSONList(items []json.RawMessage) *models.TrainEventList {
+	result := []models.TrainEvent{}
 	for _, item := range items {
-		m := models.Train{}
+		m := models.TrainEvent{}
 		if err := json.Unmarshal(item, &m); err == nil {
 			result = append(result, m)
 		} else {
 			logger.Println(err)
 		}
 	}
-	return &models.TrainList{result}
+	return &models.TrainEventList{result}
 }

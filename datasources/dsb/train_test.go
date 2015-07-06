@@ -92,9 +92,9 @@ func TestUnmarshalTrains(t *testing.T) {
 	assert.Equal(3, len(rawList), "expecting 3 trains")
 
 	trainList := convertTrainJSONList(rawList)
-	assert.Equal(3, len(trainList.Trains), "expecting 3 trains")
+	assert.Equal(3, len(trainList.Events), "expecting 3 trains")
 
-	train := trainList.Trains[2]
+	train := trainList.Events[2]
 	assert.Equal("fd0a665e-ba47-42d1-ac85-1927337a99e7", train.ID, "should be the same")
 	assert.Equal("8600761", train.StationUic, "should be the same")
 	assert.Equal("S-tog", train.TrainType, "should be the same")

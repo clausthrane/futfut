@@ -17,10 +17,10 @@ func init() {
 	numberSequenceRegex, _ = regexp.Compile("([0-9]+)")
 }
 
-// Train respresents a train event
+// TrainEvent respresents a train event
 //
 // E.g. when does a certain train (by TrainNumber) arrive at station Station Uic
-type Train struct {
+type TrainEvent struct {
 	ID                     string `UUID`
 	StationUic             string `int`
 	TrainType              string
@@ -40,7 +40,7 @@ type Train struct {
 	MinutesToDeparture     string `int`
 }
 
-func (t *Train) String() string {
+func (t *TrainEvent) String() string {
 	return fmt.Sprintf("Train : %s towards %s expected at Station %s at %s leaving at %s",
 		t.TrainNumber,
 		t.DestinationName,
@@ -49,23 +49,23 @@ func (t *Train) String() string {
 		t.HumanReadableDepartureDate())
 }
 
-func (t *Train) ArrivesBefore(other *Train) bool {
+func (t *TrainEvent) ArrivesBefore(other *TrainEvent) bool {
 	return humanReadableDate(t.ScheduledArrival).Before(humanReadableDate(other.ScheduledArrival))
 }
 
-func (t *Train) ScheduledArrivalDate() time.Time {
+func (t *TrainEvent) ScheduledArrivalDate() time.Time {
 	return humanReadableDate(t.ScheduledArrival)
 }
 
-func (t *Train) ScheduledDepartureDate() time.Time {
+func (t *TrainEvent) ScheduledDepartureDate() time.Time {
 	return humanReadableDate(t.ScheduledDeparture)
 }
 
-func (t *Train) HumanReadableArrivalDate() string {
+func (t *TrainEvent) HumanReadableArrivalDate() string {
 	return humanReadableDateString(t.ScheduledArrival)
 }
 
-func (t *Train) HumanReadableDepartureDate() string {
+func (t *TrainEvent) HumanReadableDepartureDate() string {
 	return humanReadableDateString(t.ScheduledDeparture)
 }
 
@@ -83,13 +83,13 @@ func humanReadableDate(date string) time.Time {
 }
 
 // TrainList represent a collection of train events
-type TrainList struct {
-	Trains []Train
+type TrainEventList struct {
+	Events []TrainEvent
 }
 
-func (tl *TrainList) String() string {
+func (tl *TrainEventList) String() string {
 	var buffer bytes.Buffer
-	for _, t := range tl.Trains {
+	for _, t := range tl.Events {
 		buffer.WriteString(fmt.Sprintf("[ %s ]", t.String()))
 	}
 	return buffer.String()

@@ -9,8 +9,8 @@ import (
 
 var logger = log.New(os.Stdout, " ", log.Ldate|log.Ltime|log.Lshortfile)
 
-// JSONTrain is the external representation of models.Train
-type JSONTrain struct {
+// JSONTrain is the external representation of models.TrainEvent
+type JSONTrainEvent struct {
 	TrainNumber        int
 	StationId          int
 	DestinationName    string
@@ -19,9 +19,9 @@ type JSONTrain struct {
 }
 
 // JSONTrainList is the external representation of models.TrainList
-type JSONTrainList struct {
+type JSONTrainEventList struct {
 	Count  int
-	Trains []JSONTrain
+	Trains []JSONTrainEvent
 }
 
 type trainConverter struct {
@@ -29,32 +29,32 @@ type trainConverter struct {
 
 // TrainConverter maps models.TrainList to the external representation
 type TrainConverter interface {
-	ConvertTrainList(*models.TrainList) *JSONTrainList
-	ConvertTrain(*models.Train) (*JSONTrain, error)
+	ConvertTrainList(*models.TrainEventList) *JSONTrainEventList
+	ConvertTrain(*models.TrainEvent) (*JSONTrainEvent, error)
 }
 
 func NewTrainConverter() TrainConverter {
 	return &trainConverter{}
 }
 
-func (c trainConverter) ConvertTrainList(list *models.TrainList) *JSONTrainList {
-	dtos := []JSONTrain{}
-	for _, t := range list.Trains {
+func (c trainConverter) ConvertTrainList(list *models.TrainEventList) *JSONTrainEventList {
+	dtos := []JSONTrainEvent{}
+	for _, t := range list.Events {
 		if dto, err := c.ConvertTrain(&t); err == nil {
 			dtos = append(dtos, *dto)
 		}
 	}
-	return &JSONTrainList{len(dtos), dtos}
+	return &JSONTrainEventList{len(dtos), dtos}
 }
 
-func (c trainConverter) ConvertTrain(t *models.Train) (*JSONTrain, error) {
+func (c trainConverter) ConvertTrain(t *models.TrainEvent) (*JSONTrainEvent, error) {
 	trainNumner, err := strconv.Atoi(t.TrainNumber)
 	currentStationId, err := strconv.Atoi(t.StationUic)
 	if err != nil {
 		return nil, err
 	}
 
-	return &JSONTrain{
+	return &JSONTrainEvent{
 		trainNumner,
 		currentStationId,
 		t.DestinationName,

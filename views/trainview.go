@@ -7,8 +7,8 @@ import (
 )
 
 type TrainView interface {
-	AllTrains() (*dto.JSONTrainList, error)
-	DeparturesBetween(services.StationID, services.StationID) (*dto.JSONTrainList, error)
+	AllTrains() (*dto.JSONTrainEventList, error)
+	DeparturesBetween(services.StationID, services.StationID) (*dto.JSONTrainEventList, error)
 }
 
 func NewTrainView(service trainservice.TrainService, converter dto.TrainConverter) TrainView {
@@ -20,7 +20,7 @@ type trainView struct {
 	converter dto.TrainConverter
 }
 
-func (view *trainView) AllTrains() (*dto.JSONTrainList, error) {
+func (view *trainView) AllTrains() (*dto.JSONTrainEventList, error) {
 	if modelList, err := view.service.AllTrains(); err == nil {
 		return view.converter.ConvertTrainList(modelList), nil
 	} else {
@@ -28,7 +28,7 @@ func (view *trainView) AllTrains() (*dto.JSONTrainList, error) {
 	}
 }
 
-func (view *trainView) DeparturesBetween(from services.StationID, to services.StationID) (*dto.JSONTrainList, error) {
+func (view *trainView) DeparturesBetween(from services.StationID, to services.StationID) (*dto.JSONTrainEventList, error) {
 	if modelList, err := view.service.DeparturesBetween(from, to); err == nil {
 		return view.converter.ConvertTrainList(modelList), nil
 	} else {

@@ -21,7 +21,7 @@ var defaultEndPoint = config.GetString("dsb.endPoint")
 
 type DSBFacade interface {
 	GetStations() (chan *models.StationList, chan error)
-	GetTrains(key string, value string) (chan *models.TrainList, chan error)
+	GetTrains(key string, value string) (chan *models.TrainEventList, chan error)
 }
 
 func NewDSBFacade() *DSBApi {

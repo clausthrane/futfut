@@ -30,16 +30,16 @@ func (c *cachingfacade) GetStations() (chan *models.StationList, chan error) {
 }
 
 type trainCacheEntry struct {
-	list *models.TrainList
+	list *models.TrainEventList
 	err  error
 }
 
 // GetTrains searches the embedded cache for a result otherwise deletates the request to the underlying
 // facade.
-func (c *cachingfacade) GetTrains(key string, value string) (chan *models.TrainList, chan error) {
+func (c *cachingfacade) GetTrains(key string, value string) (chan *models.TrainEventList, chan error) {
 	logger.Println("Intercepting request")
 	cacheKey := toCacheKey("GetTrains", key, value)
-	success, failure := make(chan *models.TrainList), make(chan error)
+	success, failure := make(chan *models.TrainEventList), make(chan error)
 	go func() {
 		if cachedItem, found := c.localcache.Get(cacheKey); found {
 			v := cachedItem.(*trainCacheEntry)
@@ -64,7 +64,7 @@ func (c *cachingfacade) GetTrains(key string, value string) (chan *models.TrainL
 	return success, failure
 }
 
-func (c *cachingfacade) cacheSuccess(cacheKey string, value *models.TrainList) *models.TrainList {
+func (c *cachingfacade) cacheSuccess(cacheKey string, value *models.TrainEventList) *models.TrainEventList {
 	c.localcache.Set(cacheKey, &trainCacheEntry{value, nil}, defaultCacheTime)
 	return value
 }
