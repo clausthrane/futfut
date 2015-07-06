@@ -41,15 +41,24 @@ type Train struct {
 }
 
 func (t *Train) String() string {
-	return fmt.Sprintf("Train : %s expected at Station %s at %s leaving at %s",
+	return fmt.Sprintf("Train : %s towards %s expected at Station %s at %s leaving at %s",
 		t.TrainNumber,
+		t.DestinationName,
 		t.StationUic,
 		t.HumanReadableArrivalDate(),
 		t.HumanReadableDepartureDate())
 }
 
-func (t *Train) arrivesBefore(other *Train) bool {
+func (t *Train) ArrivesBefore(other *Train) bool {
 	return humanReadableDate(t.ScheduledArrival).Before(humanReadableDate(other.ScheduledArrival))
+}
+
+func (t *Train) ScheduledArrivalDate() time.Time {
+	return humanReadableDate(t.ScheduledArrival)
+}
+
+func (t *Train) ScheduledDepartureDate() time.Time {
+	return humanReadableDate(t.ScheduledDeparture)
 }
 
 func (t *Train) HumanReadableArrivalDate() string {
@@ -73,6 +82,7 @@ func humanReadableDate(date string) time.Time {
 	return time.Time{}
 }
 
+// TrainList represent a collection of train events
 type TrainList struct {
 	Trains []Train
 }

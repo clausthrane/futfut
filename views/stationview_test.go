@@ -3,6 +3,7 @@ package views
 import (
 	"errors"
 	"github.com/clausthrane/futfut/models"
+	"github.com/clausthrane/futfut/services"
 	"github.com/clausthrane/futfut/views/dto"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -87,6 +88,16 @@ func (s *mockStationService) AllStations() (res *models.StationList, err error) 
 func (s *mockStationService) GetStations(countryCode string, countryName string, page int, pageSize int) (*models.StationList, error) {
 	args := s.Called(countryCode, countryName, page, pageSize)
 	return args.Get(0).(*models.StationList), args.Error(1)
+}
+
+func (s *mockStationService) Station(stationID services.StationID) (*models.Station, error) {
+	args := s.Called(stationID)
+	e := args.Get(1)
+	if e != nil {
+		return nil, e.(error)
+	} else {
+		return args.Get(0).(*models.Station), nil
+	}
 }
 
 type mockStationConverter struct {

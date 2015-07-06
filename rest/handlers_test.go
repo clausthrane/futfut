@@ -2,6 +2,7 @@ package api
 
 import (
 	"errors"
+	"github.com/clausthrane/futfut/services"
 	"github.com/clausthrane/futfut/views/dto"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -31,7 +32,7 @@ func TestHandleTrainsRequestWillMarshallViewOutput(t *testing.T) {
 
 	view := new(mockTrainView)
 
-	viewResponse := &dto.JSONTrainList{1, []dto.JSONTrain{{1, 2, "hello"}}}
+	viewResponse := &dto.JSONTrainList{1, []dto.JSONTrain{{1, 2, "hello", "", ""}}}
 	view.On("AllTrains").Return(viewResponse, nil)
 
 	responseWriterCalled := false
@@ -39,13 +40,14 @@ func TestHandleTrainsRequestWillMarshallViewOutput(t *testing.T) {
 	responseWriter.On("Write", mock.Anything).Return().Run(func(args mock.Arguments) {
 		a := args.Get(0).([]byte)
 		assert.NotNil(a)
-		expected := `{"Count":1,"Trains":[{"TrainNumber":1,"CurrentStationId":2,"DestinationName":"hello"}]}`
-		assert.Equal([]byte(expected), a[:len(a)-1])
+		expected :=
+			`{"Count":1,"Trains":[{"TrainNumber":1,"StationId":2,"DestinationName":"hello","ScheduledArrival":"","ScheduledDeparture":""}]}`
+		assert.Equal(expected, string(a[:len(a)-1]))
 		responseWriterCalled = true
 	})
 
 	handler := NewRequestHandler(nil, view)
-	handler.HandleTrainsRequest(responseWriter, &http.Request{})
+	handler.HandleAllTrainsRequest(responseWriter, &http.Request{})
 	assert.True(responseWriterCalled, "responsWriter has not been invoked")
 }
 
@@ -73,6 +75,15 @@ type mockTrainView struct {
 }
 
 func (m mockTrainView) AllTrains() (list *dto.JSONTrainList, err error) {
+	args := m.Called()
+	if e := args.Get(1); e == nil {
+		return args.Get(0).(*dto.JSONTrainList), nil
+	} else {
+		return nil, e.(error)
+	}
+}
+
+func (m mockTrainView) DeparturesBetween(from services.StationID, to services.StationID) (*dto.JSONTrainList, error) {
 	args := m.Called()
 	if e := args.Get(1); e == nil {
 		return args.Get(0).(*dto.JSONTrainList), nil

@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
@@ -14,7 +15,9 @@ type handlerWrapper func(http.Handler) http.HandlerFunc
 func NewAPI(requestHandler *RequestHandler) http.Handler {
 	api := mux.NewRouter()
 	api.HandleFunc("/api/stations", chainHandlers(requestHandler.HandleStationsRequest, allowCORS))
-	api.HandleFunc("/api/trains", chainHandlers(requestHandler.HandleTrainsRequest, allowCORS))
+
+	api.HandleFunc("/api/trains/from/{fromid}/to/{toid}/", chainHandlers(requestHandler.HandleDeparturesBetween, allowCORS))
+	api.HandleFunc("/api/trains", chainHandlers(requestHandler.HandleAllTrainsRequest, allowCORS))
 
 	api.PathPrefix("/").Handler(http.FileServer(http.Dir("./web/")))
 	return api
@@ -29,6 +32,7 @@ func chainHandlers(handler http.HandlerFunc, others ...handlerWrapper) http.Hand
 
 func allowCORS(handler http.Handler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		logger.Println(fmt.Sprintf("Got request from: %s", r.RemoteAddr))
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		if r.Method == "OPTIONS" {
 			w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS")

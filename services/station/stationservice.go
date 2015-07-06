@@ -2,8 +2,10 @@ package stationservice
 
 import (
 	"errors"
+	"fmt"
 	"github.com/clausthrane/futfut/datasources/dsb"
 	"github.com/clausthrane/futfut/models"
+	"github.com/clausthrane/futfut/services"
 	"log"
 	"os"
 	"time"
@@ -14,16 +16,18 @@ var logger = log.New(os.Stdout, " ", log.Ldate|log.Ltime|log.Lshortfile)
 type stationService struct {
 	remoteAPI        dsb.DSBFacade
 	timeoutInSeconds int
+	cache            *models.StationList
 }
 
 type StationsService interface {
 	AllStations() (*models.StationList, error)
+	Station(services.StationID) (*models.Station, error)
 	GetStations(countryCode string, countryName string, page int, pageSize int) (*models.StationList, error)
 }
 
 // New returns a new StationService
 func New(remoteAPI dsb.DSBFacade) StationsService {
-	return &stationService{remoteAPI, 0}
+	return &stationService{remoteAPI, 0, nil}
 }
 
 // NewDSBStationService returns a new StationService backed by a default DSBFacade
@@ -32,8 +36,7 @@ func NewDSBStationService() StationsService {
 }
 
 // AllStations returns all available stations provided by the underlying DSBFacade
-// A timeout of 10 seconds is applied to the request, after which an empty list is
-// returned
+// A timeout of 29 seconds (normal HTTP timeout is 30) is applied to the request
 func (s *stationService) AllStations() (res *models.StationList, err error) {
 	successChan, errChan := s.remoteAPI.GetStations()
 	select {
@@ -41,7 +44,7 @@ func (s *stationService) AllStations() (res *models.StationList, err error) {
 		return res, nil
 	case err = <-errChan:
 		return nil, err
-	case <-time.After(time.Second * 30):
+	case <-time.After(time.Second * 29):
 		logger.Println("Timeout!")
 		return nil, errors.New("Timeout loading stations")
 	}
@@ -50,6 +53,22 @@ func (s *stationService) AllStations() (res *models.StationList, err error) {
 // GetStations returns stations based on the supplied parameters
 func (s *stationService) GetStations(countryCode string, countryName string, page int, pageSize int) (*models.StationList, error) {
 	return (*s).AllStations()
+}
+
+func (s *stationService) Station(stationID services.StationID) (*models.Station, error) {
+	if s.cache == nil {
+		if all, err := s.AllStations(); err == nil {
+			s.cache = all
+		}
+	}
+	if s.cache != nil {
+		for _, s := range s.cache.Stations {
+			if services.StationID(s.UIC) == stationID {
+				return &s, nil
+			}
+		}
+	}
+	return nil, services.NewServiceValidationError(fmt.Sprintf("Unknown station id: %", string(stationID)))
 }
 
 func (s *stationService) setTimeoutInSeconds(seconds int) {
