@@ -61,7 +61,7 @@ func HttpServerFromFiles(stationsFilename string, queueFilename string, port int
 	})
 
 	go func() { logger.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", port), router)) }()
-	logger.Printf("Strated server on port %d", port)
+	logger.Printf("Started server on port %d", port)
 }
 
 func HttpServerDSBTestApi(t *testing.T, port int) {
