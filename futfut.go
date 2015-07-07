@@ -20,12 +20,15 @@ var logger = log.New(os.Stdout, " ", log.Ldate|log.Ltime|log.Lshortfile)
 func main() {
 	port := config.GetString("host.port")
 	logger.Printf("Starting server on: %s", port)
-	logger.Fatal(http.ListenAndServe(port, webApp()))
+	logger.Fatal(http.ListenAndServe(port, WebApp()))
 }
 
-func webApp() http.Handler {
+func WebApp() http.Handler {
+	remote := cachingfacade.New(dsb.NewDSBFacade())
+	return WebAppWithFacade(remote)
+}
 
-	dsbFacade := cachingfacade.New(dsb.NewDSBFacade())
+func WebAppWithFacade(dsbFacade dsb.DSBFacade) http.Handler {
 
 	stationService := stationservice.New(dsbFacade)
 	stationConverter := dto.NewStationConverter()
