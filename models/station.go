@@ -1,4 +1,4 @@
-package traindata
+package models
 
 type Station struct {
 	Abbreviation string
