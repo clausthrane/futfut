@@ -13,6 +13,10 @@ var logger = log.New(os.Stdout, " ", log.Ldate|log.Lmicroseconds|log.Lshortfile)
 type handlerWrapper func(http.Handler) http.HandlerFunc
 
 func NewAPI(requestHandler *RequestHandler) http.Handler {
+	return NewAPIWithWebroot(requestHandler, "web/")
+}
+
+func NewAPIWithWebroot(requestHandler *RequestHandler, webroot string) http.Handler {
 	api := mux.NewRouter()
 	api.HandleFunc("/api/stations", chainHandlers(requestHandler.HandleStationsRequest, allowCORS))
 	api.HandleFunc("/api/stations/{stationid}/details", chainHandlers(requestHandler.HandleStationsDetailRequest, allowCORS))
@@ -23,7 +27,7 @@ func NewAPI(requestHandler *RequestHandler) http.Handler {
 
 	api.HandleFunc("/api/trains/{trainid}", chainHandlers(requestHandler.HandleTrainStopInfo, allowCORS))
 
-	api.PathPrefix("/").Handler(http.FileServer(http.Dir("./web/")))
+	api.PathPrefix("/").Handler(http.FileServer(http.Dir(webroot)))
 	return handlers.CombinedLoggingHandler(os.Stdout, api)
 }
 
