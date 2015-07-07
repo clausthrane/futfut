@@ -15,18 +15,66 @@ const defaultCacheTime = 0
 
 var logger = log.New(os.Stdout, " ", log.Ldate|log.Lmicroseconds|log.Lshortfile)
 
+// A hard cache for all stations
+var cachedStationList *models.StationList
+var stationByIDMap map[string]*models.StationList
+
+func init() {
+	stationByIDMap = make(map[string]*models.StationList)
+}
+
 type cachingfacade struct {
 	localcache *cache.Cache
 	facade     dsb.DSBFacade
 }
 
 func New(facade dsb.DSBFacade) dsb.DSBFacade {
-	c := cache.New(30*time.Second, 10*time.Second)
+	c := cache.New(120*time.Second, 20*time.Second)
 	return &cachingfacade{c, facade}
 }
 
+func (c *cachingfacade) GetStation(stationid string) (chan *models.StationList, chan error) {
+	success, failure := make(chan *models.StationList), make(chan error)
+	go func() {
+		if stationByIDMap[stationid] == nil {
+			downstreamSucces, downstreamFailure := c.facade.GetStation(stationid)
+			select {
+			case result := <-downstreamSucces:
+				stationByIDMap[stationid] = result
+			case err := <-downstreamFailure:
+				failure <- err
+			case <-time.After(time.Second * 30):
+				failure <- services.NewServiceTimeoutError("Failed to get all trains in time")
+			}
+		}
+		success <- stationByIDMap[stationid]
+	}()
+	return success, failure
+}
+
 func (c *cachingfacade) GetStations() (chan *models.StationList, chan error) {
-	return c.facade.GetStations()
+	logger.Println("Intercepting request for GetStatins()")
+	success, failure := make(chan *models.StationList), make(chan error)
+	go func() {
+		if cachedStationList == nil {
+			logger.Println("Sending request downstream")
+			downstreamSuccess, downstreamErr := c.facade.GetStations()
+			select {
+			case cachedStationList = <-downstreamSuccess:
+			case err := <-downstreamErr:
+				failure <- err
+			case <-time.After(time.Second * 30):
+				failure <- services.NewServiceTimeoutError("Failed to get all trains in time")
+			}
+		}
+		logger.Println("Returning cached result")
+		success <- cachedStationList
+	}()
+	return success, failure
+}
+
+func (c *cachingfacade) GetAllTrains() (chan *models.TrainEventList, chan error) {
+	return c.facade.GetAllTrains()
 }
 
 type trainCacheEntry struct {
@@ -37,7 +85,7 @@ type trainCacheEntry struct {
 // GetTrains searches the embedded cache for a result otherwise deletates the request to the underlying
 // facade.
 func (c *cachingfacade) GetTrains(key string, value string) (chan *models.TrainEventList, chan error) {
-	logger.Println("Intercepting request")
+	logger.Printf("Intercepting request for GetTrains(%s, %s)", key, value)
 	cacheKey := toCacheKey("GetTrains", key, value)
 	success, failure := make(chan *models.TrainEventList), make(chan error)
 	go func() {
