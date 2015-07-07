@@ -1,0 +1,64 @@
+<!doctype html>
+<html ng-app>
+<head>
+<head>
+    <script src="js/angular-1.0.0rc3.min.js"></script>
+    <script type="text/javascript" src="futfut.js"></script>
+    <link rel="stylesheet" href="futfut.css">
+
+</head>
+</head>
+<body>
+<div class="topbar">
+    <h1>Danish Railway Info - Light</h1>
+</div>
+<div ng-controller="FutfutCtrl">
+
+    <div class="options">
+        <h2>Please choose one of the {{stationCount}} available stations</h2>
+        <select ng-model="selectedStation" ng-options="station as station.Name for station in stations"
+                ng-change="chooseStation(selectedStation.Id)">
+        </select>
+
+    </div>
+
+    <div class="content">
+
+        <div ng-show="departures.Trains" class="data">
+            <h3>Departures at {{selectedStation.Name}} - pick one</h3>
+            <table ng-show="departures.Trains">
+                <tr class="tableheader">
+                    <th>Train Number</th>
+                    <th>Departs</th>
+                    <th>Towards</th>
+                </tr>
+                <tr ng-repeat="dept in departures.Trains" ng-click="chooseDeparture(dept.TrainNumber)">
+
+                    <td>{{dept.TrainNumber}}</td>
+                    <td>{{dept.ScheduledDeparture | date:'HH:mm'}}</td>
+                    <td>{{dept.DestinationName}}</td>
+                </tr>
+            </table>
+        </div>
+
+        <div ng-show="traindata.Trains" class="data">
+
+            <h3>This is the route of train #{{trainId}}</h3>
+            <table>
+                <tr>
+                    <th>Station</th>
+                    <th>Departs</th>
+                </tr>
+                <tr ng-repeat="dept in traindata.Trains"
+                    ng-class="{'selected-station': dept.StationId == selectedStation.Id}">
+                    <td>{{dept.StationId}}</td>
+                    <td>{{dept.ScheduledDeparture | date:'HH:mm'}}</td>
+                </tr>
+            </table>
+
+        </div>
+    </div>
+
+</div>
+</body>
+</html>
