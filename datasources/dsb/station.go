@@ -7,9 +7,17 @@ import (
 	"io"
 )
 
+func (api *DSBApi) GetStation(stationid string) (chan *models.StationList, chan error) {
+	return api.getStationsByQuery(filterEQParam("UIC", stationid))
+}
+
 func (api *DSBApi) GetStations() (chan *models.StationList, chan error) {
+	return api.getStationsByQuery("")
+}
+
+func (api *DSBApi) getStationsByQuery(param string) (chan *models.StationList, chan error) {
 	success, failure := make(chan *models.StationList), make(chan error)
-	request, err := api.buildRequest(httpGET, "/Station()")
+	request, err := api.buildRequest(httpGET, "/Station()"+param)
 	if err != nil {
 		utils.SubmitAsync(err, failure)
 	} else {

@@ -2,29 +2,23 @@ package dsb
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/clausthrane/futfut/models"
 	"github.com/clausthrane/futfut/utils"
 	"io"
-	"net/url"
-	"strings"
 )
 
-func (api *DSBApi) GetTrains(key string, value string) (chan *models.TrainEventList, chan error) {
-	if len(key) == 0 && len(value) == 0 {
-		return api.getTrainsByQuery("")
-	} else {
-		filter := fmt.Sprintf("%s eq '%s'", key, value)
-		// https://github.com/golang/go/issues/4013
-		escapedFilter := fmt.Sprintf("?$filter=%s", strings.Replace(url.QueryEscape(filter), "+", "%20", -1))
-		return api.getTrainsByQuery(escapedFilter)
-	}
+func (api *DSBApi) GetAllTrains() (chan *models.TrainEventList, chan error) {
+	return api.getTrainsByQuery("")
 }
 
-func (api *DSBApi) getTrainsByQuery(query string) (chan *models.TrainEventList, chan error) {
+func (api *DSBApi) GetTrains(key string, value string) (chan *models.TrainEventList, chan error) {
+	return api.getTrainsByQuery(filterEQParam(key, value))
+}
+
+func (api *DSBApi) getTrainsByQuery(param string) (chan *models.TrainEventList, chan error) {
 	success, failure := make(chan *models.TrainEventList), make(chan error)
 
-	request, err := api.buildRequest(httpGET, "/Queue()"+query)
+	request, err := api.buildRequest(httpGET, "/Queue()"+param)
 
 	if err != nil {
 		utils.SubmitAsync(err, failure)

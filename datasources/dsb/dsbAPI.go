@@ -2,14 +2,16 @@
 package dsb
 
 import (
-	"errors"
 	"fmt"
 	"github.com/clausthrane/futfut/config"
+	"github.com/clausthrane/futfut/datasources"
 	"github.com/clausthrane/futfut/models"
 	"io"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
+	"strings"
 )
 
 const (
@@ -21,6 +23,8 @@ var defaultEndPoint = config.GetString("dsb.endPoint")
 
 type DSBFacade interface {
 	GetStations() (chan *models.StationList, chan error)
+	GetStation(stationId string) (chan *models.StationList, chan error)
+	GetAllTrains() (chan *models.TrainEventList, chan error)
 	GetTrains(key string, value string) (chan *models.TrainEventList, chan error)
 }
 
@@ -78,10 +82,20 @@ func handleGenericResponse(fail chan error, resp *http.Response, bodyHandler bod
 	logger.Printf("Respons was %d", resp.StatusCode)
 	switch {
 	case resp.StatusCode >= 500:
-		fail <- errors.New(fmt.Sprintf("remote resource is unavailable: %d", resp.StatusCode))
+		fail <- traindata.NewRemoteError(fmt.Sprintf("Remote system encountered an error: %d", resp.StatusCode))
 	case 500 > resp.StatusCode && resp.StatusCode >= 400:
-		fail <- errors.New(fmt.Sprintf("Internal Server Error: %d", resp.StatusCode))
+		fail <- traindata.NewClientError(fmt.Sprintf("Remote system rejected request: %d", resp.StatusCode))
 	case 300 > resp.StatusCode:
 		bodyHandler(resp.Body)
 	}
+}
+
+func filterParam(key string, value string, op string) string {
+	filter := fmt.Sprintf("%s %s '%s'", key, op, value)
+	// https://github.com/golang/go/issues/4013
+	return fmt.Sprintf("?$filter=%s", strings.Replace(url.QueryEscape(filter), "+", "%20", -1))
+}
+
+func filterEQParam(key string, value string) string {
+	return filterParam(key, value, "eq")
 }
