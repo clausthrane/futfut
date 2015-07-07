@@ -19,7 +19,7 @@ type ServiceTimeoutError struct {
 	msg string
 }
 
-func (e *ServiceTimeoutError) Error() string {
+func (e ServiceTimeoutError) Error() string {
 	return fmt.Sprintf("Timeout: %s", e.msg)
 }
 
@@ -35,6 +35,6 @@ func NewServiceValidationError(msg string) error {
 	return &ServiceValidationError{msg}
 }
 
-func (e *ServiceValidationError) Error() string {
+func (e ServiceValidationError) Error() string {
 	return fmt.Sprintf("Validation error: %s", e.msg)
 }
