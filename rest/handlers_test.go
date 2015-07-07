@@ -33,7 +33,7 @@ func TestHandleTrainsRequestWillMarshallViewOutput(t *testing.T) {
 	view := new(mockTrainView)
 
 	viewResponse := &dto.JSONTrainEventList{1, []dto.JSONTrainEvent{{1, 2, "hello", "", ""}}}
-	view.On("AllTrains").Return(viewResponse, nil)
+	view.On("AllTrains", mock.Anything).Return(viewResponse, nil)
 
 	responseWriterCalled := false
 	responseWriter := new(mockResponseWriter)
@@ -46,8 +46,13 @@ func TestHandleTrainsRequestWillMarshallViewOutput(t *testing.T) {
 		responseWriterCalled = true
 	})
 
+	req, err := http.NewRequest("GET", "http://localhost?traintyp=foo", nil)
+	if err != nil {
+		t.Fail()
+	}
+
 	handler := NewRequestHandler(nil, view)
-	handler.HandleAllTrainsRequest(responseWriter, &http.Request{})
+	handler.HandleAllTrainsRequest(responseWriter, req)
 	assert.True(responseWriterCalled, "responsWriter has not been invoked")
 }
 
@@ -74,8 +79,8 @@ type mockTrainView struct {
 	mock.Mock
 }
 
-func (m mockTrainView) AllTrains() (list *dto.JSONTrainEventList, err error) {
-	args := m.Called()
+func (m mockTrainView) AllTrains(traintypes []string) (list *dto.JSONTrainEventList, err error) {
+	args := m.Called(traintypes)
 	if e := args.Get(1); e == nil {
 		return args.Get(0).(*dto.JSONTrainEventList), nil
 	} else {
@@ -85,6 +90,24 @@ func (m mockTrainView) AllTrains() (list *dto.JSONTrainEventList, err error) {
 
 func (m mockTrainView) DeparturesBetween(from services.StationID, to services.StationID) (*dto.JSONTrainEventList, error) {
 	args := m.Called()
+	if e := args.Get(1); e == nil {
+		return args.Get(0).(*dto.JSONTrainEventList), nil
+	} else {
+		return nil, e.(error)
+	}
+}
+
+func (m mockTrainView) Stops(trainid services.TrainID) (*dto.JSONTrainEventList, error) {
+	args := m.Called(trainid)
+	if e := args.Get(1); e == nil {
+		return args.Get(0).(*dto.JSONTrainEventList), nil
+	} else {
+		return nil, e.(error)
+	}
+}
+
+func (m mockTrainView) TrainsFromStation(from services.StationID) (*dto.JSONTrainEventList, error) {
+	args := m.Called(from)
 	if e := args.Get(1); e == nil {
 		return args.Get(0).(*dto.JSONTrainEventList), nil
 	} else {
@@ -105,12 +128,12 @@ func (m mockStationView) AllStations() (list *dto.JSONStationList, err error) {
 	}
 }
 
-func (m mockStationView) GetStations(countryCode string, countryName string, page int, pageSize int) (*dto.JSONStationList, error) {
-	args := m.Called(countryCode, countryName, page, pageSize)
+func (m mockStationView) GetStation(stationID services.StationID) (dto.JSONStation, error) {
+	args := m.Called(stationID)
 	if e := args.Get(1); e == nil {
-		return args.Get(0).(*dto.JSONStationList), nil
+		return args.Get(0).(dto.JSONStation), nil
 	} else {
-		return nil, e.(error)
+		return dto.JSONStation{}, e.(error)
 	}
 }
 
