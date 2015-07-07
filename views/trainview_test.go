@@ -16,7 +16,7 @@ func TestTrainViewPanicsWhenNotInitialized(t *testing.T) {
 	out := NewTrainView(nil, nil)
 
 	assert.Panics(nil, func() {
-		out.AllTrains()
+		out.AllTrains([]string{"anytype"})
 	}, "without service and convereter we should panic")
 }
 
@@ -25,14 +25,14 @@ func TestTrainView(t *testing.T) {
 
 	emptyList := &models.TrainEventList{nil}
 	service := new(mockTrainService)
-	service.On("AllTrains").Return(emptyList, nil)
+	service.On("AllTrains", mock.Anything).Return(emptyList, nil)
 
 	dtos := &dto.JSONTrainEventList{1, []dto.JSONTrainEvent{{42, 10, "dest", "", ""}}}
 	converter := new(mockTrainConverter)
 	converter.On("ConvertTrainList", emptyList).Return(dtos)
 
 	view := NewTrainView(service, converter)
-	out, err := view.AllTrains()
+	out, err := view.AllTrains([]string{"anytype"})
 
 	assert.Nil(err)
 	assert.Equal(1, out.Count)
@@ -43,12 +43,12 @@ func TestTrainViewConvertionNotCalledOnServiceError(t *testing.T) {
 	assert := assert.New(t)
 
 	service := new(mockTrainService)
-	service.On("AllTrains").Return(nil, errors.New("fake error"))
+	service.On("AllTrains", mock.Anything).Return(nil, errors.New("fake error"))
 
 	converter := new(mockTrainConverter)
 
 	view := NewTrainView(service, converter)
-	out, err := view.AllTrains()
+	out, err := view.AllTrains([]string{"anytype"})
 
 	assert.NotNil(err)
 	assert.Nil(out)
@@ -60,12 +60,12 @@ func TestTrainViewServiceErrorsArePropagated(t *testing.T) {
 	assert := assert.New(t)
 
 	service := new(mockTrainService)
-	service.On("AllTrains").Return(nil, errors.New("fake error"))
+	service.On("AllTrains", mock.Anything).Return(nil, errors.New("fake error"))
 
 	converter := new(mockTrainConverter)
 
 	view := NewTrainView(service, converter)
-	out, err := view.AllTrains()
+	out, err := view.AllTrains([]string{})
 
 	assert.NotNil(err)
 	assert.Nil(out)
@@ -76,8 +76,8 @@ type mockTrainService struct {
 	mock.Mock
 }
 
-func (m *mockTrainService) AllTrains() (result *models.TrainEventList, err error) {
-	args := m.Called()
+func (m *mockTrainService) AllTrains(types []string) (result *models.TrainEventList, err error) {
+	args := m.Called(types)
 	e := args.Get(1)
 	if e != nil {
 		return nil, e.(error)

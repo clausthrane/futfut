@@ -61,5 +61,4 @@ func (c trainConverter) ConvertTrain(t *models.TrainEvent) (*JSONTrainEvent, err
 		t.HumanReadableArrivalDate(),
 		t.HumanReadableDepartureDate(),
 	}, nil
-
 }

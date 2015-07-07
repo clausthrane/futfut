@@ -2,13 +2,14 @@ package views
 
 import (
 	"github.com/clausthrane/futfut/models"
+	"github.com/clausthrane/futfut/services"
 	"github.com/clausthrane/futfut/services/station"
 	"github.com/clausthrane/futfut/views/dto"
 )
 
 type StationView interface {
 	AllStations() (*dto.JSONStationList, error)
-	GetStations(countryCode string, countryName string, page int, pageSize int) (*dto.JSONStationList, error)
+	GetStation(services.StationID) (dto.JSONStation, error)
 }
 
 // NewStationsView provides a new view for the stations resource
@@ -29,6 +30,10 @@ func (view *stationView) AllStations() (list *dto.JSONStationList, err error) {
 	return nil, err
 }
 
-func (view *stationView) GetStations(countryCode string, countryName string, page int, pageSize int) (*dto.JSONStationList, error) {
-	return view.AllStations()
+func (view *stationView) GetStation(stationID services.StationID) (dto.JSONStation, error) {
+	if station, err := view.service.Station(stationID); err == nil {
+		return view.converter.ConvertStation(station), nil
+	} else {
+		return dto.JSONStation{}, err
+	}
 }
