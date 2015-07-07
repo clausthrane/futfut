@@ -18,14 +18,14 @@ func NewAPI(requestHandler *RequestHandler) http.Handler {
 
 func NewAPIWithWebroot(r *RequestHandler, webroot string) http.Handler {
 	api := mux.NewRouter()
-	api.HandleFunc("/api/stations", chain(errorHandler(r.HandleStationsRequest), allowCORS))
-	api.HandleFunc("/api/stations/{stationid}/details", chain(errorHandler(r.HandleStationsDetailRequest), allowCORS))
+	api.HandleFunc("/api/v1/stations", chain(errorHandler(r.HandleStationsRequest), CORS))
+	api.HandleFunc("/api/v1/stations/{stationid}/details", chain(errorHandler(r.HandleStationsDetailRequest), CORS))
 
-	api.HandleFunc("/api/departures", chain(errorHandler(r.HandleAllTrainsRequest), allowCORS))
-	api.HandleFunc("/api/departures/from/{fromid}", chain(errorHandler(r.HandleDeparturesBetween), allowCORS))
-	api.HandleFunc("/api/departures/from/{fromid}/to/{toid}", chain(errorHandler(r.HandleDeparturesBetween), allowCORS))
+	api.HandleFunc("/api/v1/departures", chain(errorHandler(r.HandleAllTrainsRequest), CORS))
+	api.HandleFunc("/api/v1/departures/from/{fromid}", chain(errorHandler(r.HandleDeparturesBetween), CORS))
+	api.HandleFunc("/api/v1/departures/from/{fromid}/to/{toid}", chain(errorHandler(r.HandleDeparturesBetween), CORS))
 
-	api.HandleFunc("/api/trains/{trainid}", chain(errorHandler(r.HandleTrainStopInfo), allowCORS))
+	api.HandleFunc("/api/v1/trains/{trainid}", chain(errorHandler(r.HandleTrainStopInfo), CORS, metrics))
 
 	api.PathPrefix("/").Handler(http.FileServer(http.Dir(webroot)))
 	return handlers.CombinedLoggingHandler(os.Stdout, api)
@@ -43,7 +43,7 @@ func chain(handler http.HandlerFunc, others ...handlerWrapper) http.HandlerFunc 
 	return handler
 }
 
-func allowCORS(handler http.Handler) http.HandlerFunc {
+func CORS(handler http.Handler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		if r.Method == "OPTIONS" {
@@ -53,12 +53,6 @@ func allowCORS(handler http.Handler) http.HandlerFunc {
 		} else {
 			handler.ServeHTTP(w, r)
 		}
-	}
-}
-
-func metrics(handler http.Handler) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-
 	}
 }
 
