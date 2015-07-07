@@ -22,7 +22,6 @@ type stationService struct {
 type StationsService interface {
 	AllStations() (*models.StationList, error)
 	Station(services.StationID) (*models.Station, error)
-	GetStations(countryCode string, countryName string, page int, pageSize int) (*models.StationList, error)
 }
 
 // New returns a new StationService
@@ -48,11 +47,6 @@ func (s *stationService) AllStations() (res *models.StationList, err error) {
 		logger.Println("Timeout!")
 		return nil, errors.New("Timeout loading stations")
 	}
-}
-
-// GetStations returns stations based on the supplied parameters
-func (s *stationService) GetStations(countryCode string, countryName string, page int, pageSize int) (*models.StationList, error) {
-	return (*s).AllStations()
 }
 
 func (s *stationService) Station(stationID services.StationID) (*models.Station, error) {

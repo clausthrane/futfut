@@ -22,12 +22,12 @@ func TestRemoteAPIChannelContentIsPropagated(t *testing.T) {
 	service := New(remoteAPIMock)
 
 	succ <- &models.TrainEventList{}
-	out, err := service.AllTrains()
-	assert.NotNil(out, "expecting output")
-	assert.Nil(err, "errors not expected")
+	out, err := service.TrainsByKeyValue("a", "b")
+	assert.NotNil(out)
+	assert.Nil(err)
 
 	fail <- errors.New("Aww")
-	out, err = service.AllTrains()
-	assert.NotNil(err, "expecting err")
-	assert.Nil(out, "output not expected")
+	out, err = service.TrainsByKeyValue("a", "b")
+	assert.NotNil(err)
+	assert.Nil(out)
 }
