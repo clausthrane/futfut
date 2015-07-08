@@ -29,7 +29,7 @@ type cachingfacade struct {
 }
 
 func New(facade dsb.DSBFacade) dsb.DSBFacade {
-	c := cache.New(120*time.Second, 20*time.Second)
+	c := cache.New(10*time.Minute, 20*time.Second)
 	return &cachingfacade{c, facade}
 }
 
