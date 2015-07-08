@@ -47,6 +47,11 @@ body {
     padding: 3%;
 }
 
+.loading {
+    background-color: greenyellow;
+    padding: 3%;
+}
+
 .temp-error {
     padding: 3%;
     background-color: yellow;
