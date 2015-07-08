@@ -119,9 +119,9 @@ func TestUnmarshalStations(t *testing.T) {
 
 	assert.Equal(4, len(out.Stations), "all stations should have been unmarshalled")
 	assert.Equal("Göteborg", out.Stations[0].Name)
-	assert.Equal("7400003", out.Stations[1].UIC)
-	assert.Equal("74", out.Stations[2].CountryCode)
-	assert.Equal("DK", out.Stations[3].CountryName)
+	assert.Equal("7400006", out.Stations[1].UIC)
+	assert.Equal("86", out.Stations[2].CountryCode)
+	assert.Equal("S", out.Stations[3].CountryName)
 }
 
 func TestUnmarshalStationsFails(t *testing.T) {
