@@ -23,6 +23,7 @@ func init() {
 type TrainEvent struct {
 	ID                     string `UUID`
 	StationUic             string `int`
+	StationName            string
 	TrainType              string
 	DestinationName        string
 	DestinationID          int

@@ -34,7 +34,7 @@ func WebAppWithFacade(dsbFacade dsb.DSBFacade) http.Handler {
 	stationConverter := dto.NewStationConverter()
 	stationView := views.NewStationsView(stationService, stationConverter)
 
-	trainService := trainservice.New(dsbFacade)
+	trainService := trainservice.New(dsbFacade, stationService.Station)
 	trainConverter := dto.NewTrainConverter()
 	trainView := views.NewTrainView(trainService, trainConverter)
 

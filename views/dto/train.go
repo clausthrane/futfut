@@ -66,7 +66,7 @@ func (c trainConverter) ConvertTrain(t *models.TrainEvent) (*JSONTrainEvent, err
 	return &JSONTrainEvent{
 		trainNumner,
 		currentStationId,
-		"NA",
+		t.StationName,
 		t.DestinationName,
 		arrivalTime,
 		arrivalDate,
