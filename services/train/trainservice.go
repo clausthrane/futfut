@@ -84,10 +84,7 @@ func (s *trainService) TrainsByKeyValue(key string, value string) (result *model
 func (s *trainService) joinStationName(list *models.TrainEventList) *models.TrainEventList {
 	for idx, _ := range list.Events {
 		if station, err := s.stationProvider(services.StationID(list.Events[idx].StationUic)); err == nil {
-			logger.Println("getting name ")
 			list.Events[idx].StationName = station.Name
-		} else {
-			logger.Println("not getting name ")
 		}
 	}
 	return list
