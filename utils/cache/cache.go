@@ -1,3 +1,4 @@
+// Package cachingfacade implements a dsb.DSBFacade proxy which caches results for a given period
 package cachingfacade
 
 import (
@@ -28,6 +29,8 @@ type cachingfacade struct {
 	facade     dsb.DSBFacade
 }
 
+// New returns a new caching dsb.DSBFacade. All requests to the dsb.DSBFacade interface are
+// proxied to the given 'facade' constructor argument
 func New(facade dsb.DSBFacade) dsb.DSBFacade {
 	c := cache.New(10*time.Minute, 20*time.Second)
 	return &cachingfacade{c, facade}
