@@ -95,3 +95,19 @@ func (tl *TrainEventList) String() string {
 	}
 	return buffer.String()
 }
+
+// len, swap, less
+
+func (list *TrainEventList) Len() int {
+	return len(list.Events)
+}
+
+func (list *TrainEventList) Less(i int, j int) bool {
+	itemI := list.Events[i]
+	itemJ := list.Events[j]
+	return itemI.ScheduledDepartureDate().Before(itemJ.ScheduledDepartureDate())
+}
+
+func (list *TrainEventList) Swap(i int, j int) {
+	list.Events[i], list.Events[j] = list.Events[j], list.Events[i]
+}
