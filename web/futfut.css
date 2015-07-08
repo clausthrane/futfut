@@ -48,8 +48,9 @@ body {
 }
 
 .loading {
-    background-color: greenyellow;
+    background-color: lightslategrey;
     padding: 3%;
+    position: absolute;
 }
 
 .temp-error {
