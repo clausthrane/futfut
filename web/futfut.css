@@ -2,7 +2,7 @@ body {
     background-color: #d0e4fe;
     padding: 0px;
     margin: 0px;
-    font-family: Avant Garde,Avantgarde,Century Gothic,CenturyGothic,AppleGothic,sans-serif;
+    font-family: Avant Garde, Avantgarde, Century Gothic, CenturyGothic, AppleGothic, sans-serif;
 }
 
 .topbar {
@@ -13,6 +13,7 @@ body {
 
 .content {
     margin: 2%;
+    min-height: 100%;
 }
 
 .options {
@@ -31,13 +32,24 @@ body {
 
 .data {
     background-color: azure;
-    width: 30%;
+    width: 25%;
+    height: inherit;
     float: left;
     margin-right: 1%;
 }
 
 .selected-station {
-    background-color: aliceblue;
+    background-color: coral;
+}
+
+.system-error {
+    background-color: red;
+    padding: 3%;
+}
+
+.temp-error {
+    padding: 3%;
+    background-color: yellow;
 }
 
 h1 {
@@ -50,7 +62,6 @@ h1 {
     margin: 0px;
     padding: 2%;
 }
-
 
 h2 {
     font-family: 'Avant Garde', Avantgarde, 'Century Gothic', CenturyGothic, AppleGothic, sans-serif;
@@ -71,6 +82,30 @@ h3 {
     background-color: slategrey;
     padding: 2%;
     margin: 0% 0% 1% 0%;
+}
+
+table {
+    width: 100%;
+    align-content: space-around;
+    border: none;
+    text-align: right;
+}
+
+th {
+    font-style: oblique;
+    padding-right: 1%;
+    border-bottom: solid;
+    border-bottom-width: 1px;
+    border-color: lightslategrey;
+}
+
+td {
+    padding-top: 2%;
+    padding-right: 2%;
+}
+
+.identifier td {
+    alignment: right;
 }
 
 /*

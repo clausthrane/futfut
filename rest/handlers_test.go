@@ -32,7 +32,7 @@ func TestHandleTrainsRequestWillMarshallViewOutput(t *testing.T) {
 
 	view := new(mockTrainView)
 
-	viewResponse := &dto.JSONTrainEventList{1, []dto.JSONTrainEvent{{1, 2, "hello", "", ""}}}
+	viewResponse := &dto.JSONTrainEventList{1, []dto.JSONTrainEvent{{1, 2, "thisstation", "finalstation", "", "", "", ""}}}
 	view.On("AllTrains", mock.Anything).Return(viewResponse, nil)
 
 	responseWriterCalled := false
@@ -41,7 +41,7 @@ func TestHandleTrainsRequestWillMarshallViewOutput(t *testing.T) {
 		a := args.Get(0).([]byte)
 		assert.NotNil(a)
 		expected :=
-			`{"Count":1,"Trains":[{"TrainNumber":1,"StationId":2,"DestinationName":"hello","ScheduledArrival":"","ScheduledDeparture":""}]}`
+			`{"Count":1,"Trains":[{"TrainNumber":1,"StationId":2,"StationName":"thisstation","DestinationName":"finalstation","ArrivalTime":"","ArrivalDate":"","DepartureTime":"","DepartureDate":""}]}`
 		assert.Equal(expected, string(a[:len(a)-1]))
 		responseWriterCalled = true
 	})

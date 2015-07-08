@@ -5,6 +5,7 @@ import (
 	"github.com/clausthrane/futfut/models"
 	"github.com/clausthrane/futfut/utils"
 	"io"
+	"sort"
 )
 
 func (api *DSBApi) GetStation(stationid string) (chan *models.StationList, chan error) {
@@ -35,14 +36,17 @@ func (api *DSBApi) getStationsByQuery(param string) (chan *models.StationList, c
 }
 
 func convertStationJSONList(items []json.RawMessage) *models.StationList {
-	result := []models.Station{}
+	list := []models.Station{}
 	for _, item := range items {
 		m := models.Station{}
 		if err := json.Unmarshal(item, &m); err == nil {
-			result = append(result, m)
+			list = append(list, m)
 		} else {
 			logger.Println(err)
 		}
 	}
-	return &models.StationList{result}
+
+	result := &models.StationList{list}
+	sort.Sort(result)
+	return result
 }

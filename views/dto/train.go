@@ -11,11 +11,14 @@ var logger = log.New(os.Stdout, " ", log.Ldate|log.Ltime|log.Lshortfile)
 
 // JSONTrain is the external representation of models.TrainEvent
 type JSONTrainEvent struct {
-	TrainNumber        int
-	StationId          int
-	DestinationName    string
-	ScheduledArrival   string
-	ScheduledDeparture string
+	TrainNumber     int
+	StationId       int
+	StationName     string
+	DestinationName string
+	ArrivalTime     string
+	ArrivalDate     string
+	DepartureTime   string
+	DepartureDate   string
 }
 
 // JSONTrainList is the external representation of models.TrainList
@@ -54,11 +57,20 @@ func (c trainConverter) ConvertTrain(t *models.TrainEvent) (*JSONTrainEvent, err
 		return nil, err
 	}
 
+	arrivalDate := t.ScheduledArrivalDate().Format("2006-01-02")
+	arrivalTime := t.ScheduledArrivalDate().Format("15:04")
+
+	departureDate := t.ScheduledDepartureDate().Format("2006-01-02")
+	departureTime := t.ScheduledDepartureDate().Format("15:04")
+
 	return &JSONTrainEvent{
 		trainNumner,
 		currentStationId,
+		t.StationName,
 		t.DestinationName,
-		t.HumanReadableArrivalDate(),
-		t.HumanReadableDepartureDate(),
+		arrivalTime,
+		arrivalDate,
+		departureTime,
+		departureDate,
 	}, nil
 }

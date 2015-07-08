@@ -12,41 +12,42 @@ import (
 	"testing"
 )
 
-func TestStations(t *testing.T) {
-	assert := assert.New(t)
-	StartStack(t)
-
-	if req, err := http.NewRequest("GET", "http://localhost:8081/api/stations", nil); err == nil {
-		response, _ := http.DefaultClient.Do(req)
-		defer response.Body.Close()
-		bytes, _ := ioutil.ReadAll(response.Body)
-		prefix := `{"Count":349,"Stations":[{"Id":"7400002","Name":"Göteborg","CountryCode":"S"}`
-		assert.True(strings.HasPrefix(string(bytes), prefix))
-	} else {
-		t.Fail()
-	}
-}
-
-/*
-func TestSpecificStation(t *testing.T) {
-	assert := assert.New(t)
-	StartStack(t)
-	if req, err := http.NewRequest("GET", "http://localhost:8081/api/stations/7400002/details", nil); err == nil {
-		response, _ := http.DefaultClient.Do(req)
-		defer response.Body.Close()
-		bytes, _ := ioutil.ReadAll(response.Body)
-		prefix := `{"Id":"7400002","Name":"Göteborg","CountryCode":"S"}`
-		assert.True(strings.HasPrefix(string(bytes), prefix))
-	} else {
-		t.Fail()
-	}
-}
-*/
-
-func StartStack(t *testing.T) {
-	mockserver.HttpServerDSBTestApi(t, 7777)
+func init() {
 	go func() {
+		// Start our webapp
 		fakeRemote := dsb.NewDSBFacadeWithEndpoint("http://localhost:7777")
 		http.ListenAndServe(fmt.Sprintf(":8081"), main.WebAppWithFacade(fakeRemote))
 	}()
+}
+
+func TestStations(t *testing.T) {
+	assert := assert.New(t)
+
+	// well behaved DSB API
+	mockserver.HttpServerDSBTestApi(t, 7777)
+
+	if req, err := http.NewRequest("GET", "http://localhost:8081/api/v1/stations", nil); err == nil {
+		response, _ := http.DefaultClient.Do(req)
+		defer response.Body.Close()
+		bytes, _ := ioutil.ReadAll(response.Body)
+		jsonString := string(bytes)
+		prefix := `{"Count":349,"Stations":[{"Id":"8600020","Name":"Aalborg","CountryCode":"DK"}`
+		assert.True(strings.HasPrefix(jsonString, prefix), jsonString[:160])
+	} else {
+		t.Fail()
+	}
+}
+
+func TestUnknownResource(t *testing.T) {
+	assert := assert.New(t)
+
+	if req, err := http.NewRequest("GET", "http://localhost:8081/api/notexist", nil); err == nil {
+		response, _ := http.DefaultClient.Do(req)
+		defer response.Body.Close()
+		bytes, _ := ioutil.ReadAll(response.Body)
+		responseText := string(bytes)
+		assert.Equal(responseText, "404 page not found\n", responseText)
+	} else {
+		t.Fail()
+	}
 }

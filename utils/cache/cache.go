@@ -67,7 +67,6 @@ func (c *cachingfacade) GetStations() (chan *models.StationList, chan error) {
 				failure <- services.NewServiceTimeoutError("Failed to get all trains in time")
 			}
 		}
-		logger.Println("Returning cached result")
 		success <- cachedStationList
 	}()
 	return success, failure
@@ -96,7 +95,6 @@ func (c *cachingfacade) GetTrains(key string, value string) (chan *models.TrainE
 			} else {
 				success <- v.list
 			}
-			logger.Println("Returning cached result")
 		} else {
 			privSuccess, privFailure := c.facade.GetTrains(key, value)
 			select {

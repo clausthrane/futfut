@@ -30,6 +30,7 @@ func TestConvertTrain(t *testing.T) {
 	in := &models.TrainEvent{
 		"fc63491b-8b93-4d50-9482-39cdc31f5024",
 		"8600761",
+		"NA",
 		"S-tog",
 		"Hundige",
 		8600769,
