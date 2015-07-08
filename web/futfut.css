@@ -1,0 +1,142 @@
+body {
+    background-color: #d0e4fe;
+    padding: 0px;
+    margin: 0px;
+    font-family: Avant Garde, Avantgarde, Century Gothic, CenturyGothic, AppleGothic, sans-serif;
+}
+
+.topbar {
+    background-color: lightslategrey;
+    border: none;
+    margin: 0px;
+}
+
+.content {
+    margin: 2%;
+    min-height: 100%;
+}
+
+.options {
+    padding: 1% 0% 0% 1%;
+}
+
+.options select {
+    width: 268px;
+    padding: 5px;
+    font-size: 16px;
+    line-height: 1;
+    border: 0;
+    border-radius: 0;
+    height: 34px;
+}
+
+.data {
+    background-color: azure;
+    width: 25%;
+    height: inherit;
+    float: left;
+    margin-right: 1%;
+}
+
+.selected-station {
+    background-color: coral;
+}
+
+.system-error {
+    background-color: red;
+    padding: 3%;
+}
+
+.loading {
+    background-color: lightslategrey;
+    padding: 3%;
+    position: absolute;
+}
+
+.temp-error {
+    padding: 3%;
+    background-color: yellow;
+}
+
+h1 {
+    font-family: 'Avant Garde', Avantgarde, 'Century Gothic', CenturyGothic, AppleGothic, sans-serif;
+    font-size: 32px;
+    font-style: normal;
+    font-variant: normal;
+    font-weight: 500;
+    line-height: 26.3999996185303px;
+    margin: 0px;
+    padding: 2%;
+}
+
+h2 {
+    font-family: 'Avant Garde', Avantgarde, 'Century Gothic', CenturyGothic, AppleGothic, sans-serif;
+    font-size: 24px;
+    font-style: normal;
+    font-variant: normal;
+    font-weight: 500;
+    line-height: 15.3999996185303px;
+}
+
+h3 {
+    font-family: 'Avant Garde', Avantgarde, 'Century Gothic', CenturyGothic, AppleGothic, sans-serif;
+    font-size: 18px;
+    font-style: normal;
+    font-variant: normal;
+    font-weight: 500;
+    line-height: 15.3999996185303px;
+    background-color: slategrey;
+    padding: 2%;
+    margin: 0% 0% 1% 0%;
+}
+
+table {
+    width: 100%;
+    align-content: space-around;
+    border: none;
+    text-align: right;
+}
+
+th {
+    font-style: oblique;
+    padding-right: 1%;
+    border-bottom: solid;
+    border-bottom-width: 1px;
+    border-color: lightslategrey;
+}
+
+td {
+    padding-top: 2%;
+    padding-right: 2%;
+}
+
+.identifier td {
+    alignment: right;
+}
+
+/*
+p {
+    font-family: 'Avant Garde', Avantgarde, 'Century Gothic', CenturyGothic, AppleGothic, sans-serif;
+    font-size: 14px;
+    font-style: normal;
+    font-variant: normal;
+    font-weight: 400;
+    line-height: 20px;
+}
+blockquote {
+    font-family: 'Avant Garde', Avantgarde, 'Century Gothic', CenturyGothic, AppleGothic, sans-serif;
+    font-size: 21px;
+    font-style: normal;
+    font-variant: normal;
+    font-weight: 400;
+    line-height: 30px;
+}
+pre {
+    font-family: 'Avant Garde', Avantgarde, 'Century Gothic', CenturyGothic, AppleGothic, sans-serif;
+    font-size: 13px;
+    font-style: normal;
+    font-variant: normal;
+    font-weight: 400;
+    line-height: 18.5714302062988px;
+}
+*/
