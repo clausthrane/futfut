@@ -18,6 +18,7 @@ func TestHumanReadableArrivalDate(t *testing.T) {
 
 	train := TrainEvent{"event_id1",
 		"station_id2",
+		"station_name",
 		"type",
 		"end_dest",
 		123,

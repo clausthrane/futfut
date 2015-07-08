@@ -23,42 +23,62 @@
     </div>
 
     <div class="content">
+        <p ng-show="departures.Count == 0">
+            There are no results for this station at this time - try another station maybe?
+        </p>
 
-        <div ng-show="departures.Trains" class="data">
-            <h3>Departures at {{selectedStation.Name}} - pick one</h3>
-            <table ng-show="departures.Trains">
-                <tr class="tableheader">
-                    <th>Train Number</th>
-                    <th>Departs</th>
-                    <th>Towards</th>
-                </tr>
-                <tr ng-repeat="dept in departures.Trains" ng-click="chooseDeparture(dept.TrainNumber)">
+        <div>
 
-                    <td>{{dept.TrainNumber}}</td>
-                    <td>{{dept.ScheduledDeparture | date:'HH:mm'}}</td>
-                    <td>{{dept.DestinationName}}</td>
-                </tr>
-            </table>
-        </div>
+            <div ng-show="departures.Trains" class="data">
+                <h3>Departures at {{selectedStation.Name}} - pick one</h3>
+                <table ng-show="departures.Trains">
+                    <tr class="tableheader">
+                        <th>Train Number</th>
+                        <th>Departs</th>
+                        <th>Towards</th>
+                    </tr>
+                    <tr ng-repeat="dept in departures.Trains" ng-click="chooseDeparture(dept.TrainNumber)">
 
-        <div ng-show="traindata.Trains" class="data">
+                        <td class="identifier">{{dept.TrainNumber}}</td>
+                        <td>{{dept.DepartureTime}}</td>
+                        <td>{{dept.DestinationName}}</td>
+                    </tr>
+                </table>
+            </div>
 
-            <h3>This is the route of train #{{trainId}}</h3>
-            <table>
-                <tr>
-                    <th>Station</th>
-                    <th>Departs</th>
-                </tr>
-                <tr ng-repeat="dept in traindata.Trains"
-                    ng-class="{'selected-station': dept.StationId == selectedStation.Id}">
-                    <td>{{dept.StationId}}</td>
-                    <td>{{dept.ScheduledDeparture | date:'HH:mm'}}</td>
-                </tr>
-            </table>
+            <div ng-show="traindata.Trains" class="data">
+
+                <h3>This is the route of train #{{trainId}}</h3>
+                <table>
+                    <tr>
+                        <th>Station</th>
+                        <th>Arrives</th>
+                        <th>Departs</th>
+                    </tr>
+                    <tr ng-repeat="dept in traindata.Trains"
+                        ng-class="{'selected-station': dept.StationId == selectedStation.Id}"
+                        ng-click="chooseStation(dept.StationId)">
+                        <td class="identifier">{{dept.StationName}}</td>
+                        <td>{{dept.ArrivalTime}}</td>
+                        <td>{{dept.DepartureTime}}</td>
+                    </tr>
+                </table>
+
+            </div>
 
         </div>
     </div>
+    <div ng-show="systemerror" class="system-error">
+        Arrg! - Sorry, something is bad!
+    </div>
 
+    <div ng-show="temperror" class="temp-error">
+        Hmm! - Seems we're experienceing a temporary error please try again later
+    </div>
+
+    <div ng-show="loading" class="loading">
+        We're crunching the numbers... {{loading}}
+    </div>
 </div>
 </body>
 </html>

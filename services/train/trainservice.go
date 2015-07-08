@@ -25,17 +25,18 @@ type TrainService interface {
 	DeparturesBetween(services.StationID, services.StationID) (*models.TrainEventList, error)
 }
 
+type StationProvider func(stationID services.StationID) (*models.Station, error)
+
 type trainService struct {
-	remoteAPI dsb.DSBFacade
+	remoteAPI       dsb.DSBFacade
+	stationProvider StationProvider
 }
 
-func New(remoteAPI dsb.DSBFacade) TrainService {
-	return &trainService{remoteAPI}
+func New(remoteAPI dsb.DSBFacade, stationProvider StationProvider) TrainService {
+	return &trainService{remoteAPI, stationProvider}
 }
 
 func (s *trainService) AllTrains(traintypes []string) (result *models.TrainEventList, err error) {
-	// {"IC", "RE", "S-tog"}
-	// TODO: dont restrict to S-tog but rely on caching
 	if len(traintypes) > 0 {
 		return s.TrainsByKeyValue(TRAIN_TYPE, traintypes[0])
 	} else {
@@ -47,7 +48,7 @@ func (s *trainService) getAllTrains() (result *models.TrainEventList, err error)
 	successChan, errChan := s.remoteAPI.GetAllTrains()
 	select {
 	case result := <-successChan:
-		return result, nil
+		return s.joinStationName(result), nil
 	case err = <-errChan:
 		return nil, err
 	case <-time.After(time.Second * 30):
@@ -72,10 +73,19 @@ func (s *trainService) TrainsByKeyValue(key string, value string) (result *model
 	successChan, errChan := s.remoteAPI.GetTrains(key, value)
 	select {
 	case result := <-successChan:
-		return result, nil
+		return s.joinStationName(result), nil
 	case err = <-errChan:
 		return nil, err
 	case <-time.After(time.Second * 30):
 		return nil, services.NewServiceTimeoutError("Failed to get all trains in time")
 	}
+}
+
+func (s *trainService) joinStationName(list *models.TrainEventList) *models.TrainEventList {
+	for idx, _ := range list.Events {
+		if station, err := s.stationProvider(services.StationID(list.Events[idx].StationUic)); err == nil {
+			list.Events[idx].StationName = station.Name
+		}
+	}
+	return list
 }

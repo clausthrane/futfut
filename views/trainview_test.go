@@ -27,7 +27,7 @@ func TestTrainView(t *testing.T) {
 	service := new(mockTrainService)
 	service.On("AllTrains", mock.Anything).Return(emptyList, nil)
 
-	dtos := &dto.JSONTrainEventList{1, []dto.JSONTrainEvent{{42, 10, "dest", "", ""}}}
+	dtos := &dto.JSONTrainEventList{1, []dto.JSONTrainEvent{{42, 10, "stationname", "finaldestination", "", "", "", ""}}}
 	converter := new(mockTrainConverter)
 	converter.On("ConvertTrainList", emptyList).Return(dtos)
 

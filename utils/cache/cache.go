@@ -29,7 +29,7 @@ type cachingfacade struct {
 }
 
 func New(facade dsb.DSBFacade) dsb.DSBFacade {
-	c := cache.New(120*time.Second, 20*time.Second)
+	c := cache.New(10*time.Minute, 20*time.Second)
 	return &cachingfacade{c, facade}
 }
 
@@ -67,7 +67,6 @@ func (c *cachingfacade) GetStations() (chan *models.StationList, chan error) {
 				failure <- services.NewServiceTimeoutError("Failed to get all trains in time")
 			}
 		}
-		logger.Println("Returning cached result")
 		success <- cachedStationList
 	}()
 	return success, failure
@@ -96,7 +95,6 @@ func (c *cachingfacade) GetTrains(key string, value string) (chan *models.TrainE
 			} else {
 				success <- v.list
 			}
-			logger.Println("Returning cached result")
 		} else {
 			privSuccess, privFailure := c.facade.GetTrains(key, value)
 			select {
