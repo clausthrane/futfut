@@ -42,6 +42,16 @@ body {
     background-color: coral;
 }
 
+.system-error {
+    background-color: red;
+    padding: 3%;
+}
+
+.temp-error {
+    padding: 3%;
+    background-color: yellow;
+}
+
 h1 {
     font-family: 'Avant Garde', Avantgarde, 'Century Gothic', CenturyGothic, AppleGothic, sans-serif;
     font-size: 32px;
