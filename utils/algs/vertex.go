@@ -80,4 +80,5 @@ func ToVertices(events []models.TrainEvent) []*Vertex {
 // S-tog don't have timing data, so we ignore them
 func isUsable(t models.TrainEvent) bool {
 	return len(t.ScheduledArrival) > 0
+	return len(t.ScheduledArrival) > 0 && len(t.ScheduledDeparture) > 0
 }
