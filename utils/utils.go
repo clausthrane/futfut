@@ -22,3 +22,12 @@ func ParseDateString(date string) time.Time {
 	t, _ := time.Parse(DATE_LAYOUT, date)
 	return t
 }
+
+func AddWithoutOverflow(a int64, b int64) int64 {
+	sum := a + b
+	if sum < a {
+		return a
+	} else {
+		return sum
+	}
+}
