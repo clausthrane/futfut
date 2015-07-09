@@ -41,20 +41,23 @@ body {
 .selected-station {
     background-color: coral;
 }
+.blankmsg {
+    background-color: lightslategrey;
+    padding: 0.3%;
+}
 
 .system-error {
     background-color: red;
-    padding: 3%;
+    padding: 0.3%;
 }
 
 .loading {
-    background-color: lightslategrey;
-    padding: 3%;
-    position: absolute;
+    background-color: #536172;
+    padding: 0.3%;
 }
 
 .temp-error {
-    padding: 3%;
+    padding: 0.3%;
     background-color: yellow;
 }
 
