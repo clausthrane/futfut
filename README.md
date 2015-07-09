@@ -27,8 +27,11 @@ The app exposes a REST API under `/api/v1/` (implemented in `rest/api.go`):
 
 * `GET /api/v1/departures/` Returns all departures
 * `GET /api/v1/departures/from/{id}` Returns departures from a station, and `404` if not found
+* `GET /api/v1/departures/from/{fromid}/to/{toid}` Returns the earliest route between the two
 
-The API currently only supports JSON and sets CORS headers for all resources.
+The API currently only supports JSON and sets CORS headers for all resources. 
+
+* `GET /status` Exposes the general status of the app
 
 ### Front-end
 The frontend is a simple AngularJS app

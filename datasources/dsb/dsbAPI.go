@@ -1,4 +1,4 @@
-//https://github.com/jordan-wright/gophish
+// This package implements the client for the DSB Traindata API
 package dsb
 
 import (

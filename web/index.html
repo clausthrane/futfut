@@ -13,14 +13,16 @@
     <h1>Danish Railway Info - Light</h1>
 </div>
 <div ng-controller="FutfutCtrl">
-
+    <div
+            ng-class="{'blankmsg' : !systemerror && !temperror && !loading, 'system-error': systemerror, 'temp-error': temperror, 'loading' : loading}">
+    </div>
     <div class="options">
         <h2>Please choose one of the {{stationCount}} available stations</h2>
         <select ng-model="selectedStation" ng-options="station as station.Name for station in stations"
                 ng-change="chooseStation(selectedStation.Id)">
         </select>
-
     </div>
+
 
     <div class="content">
         <p ng-show="departures.Count == 0">
@@ -67,17 +69,6 @@
             </div>
 
         </div>
-    </div>
-    <div ng-show="systemerror" class="system-error">
-        Arrg! - Sorry, something is bad!
-    </div>
-
-    <div ng-show="temperror" class="temp-error">
-        Hmm! - Seems we're experienceing a temporary error please try again later
-    </div>
-
-    <div ng-show="loading" class="loading">
-        We're crunching the numbers... {{loading}}
     </div>
 </div>
 </body>

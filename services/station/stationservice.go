@@ -16,7 +16,6 @@ var logger = log.New(os.Stdout, " ", log.Ldate|log.Ltime|log.Lshortfile)
 type stationService struct {
 	remoteAPI        dsb.DSBFacade
 	timeoutInSeconds int
-	cache            *models.StationList
 }
 
 type StationsService interface {
@@ -26,7 +25,7 @@ type StationsService interface {
 
 // New returns a new StationService
 func New(remoteAPI dsb.DSBFacade) StationsService {
-	return &stationService{remoteAPI, 0, nil}
+	return &stationService{remoteAPI, 0}
 }
 
 // NewDSBStationService returns a new StationService backed by a default DSBFacade
@@ -50,13 +49,8 @@ func (s *stationService) AllStations() (res *models.StationList, err error) {
 }
 
 func (s *stationService) Station(stationID services.StationID) (*models.Station, error) {
-	if s.cache == nil {
-		if all, err := s.AllStations(); err == nil {
-			s.cache = all
-		}
-	}
-	if s.cache != nil {
-		for _, s := range s.cache.Stations {
+	if all, err := s.AllStations(); err == nil {
+		for _, s := range all.Stations {
 			if services.StationID(s.UIC) == stationID {
 				return &s, nil
 			}
