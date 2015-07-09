@@ -95,8 +95,6 @@ func (tl *TrainEventList) String() string {
 	return buffer.String()
 }
 
-// len, swap, less
-
 func (list *TrainEventList) Len() int {
 	return len(list.Events)
 }

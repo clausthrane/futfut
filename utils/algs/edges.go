@@ -54,15 +54,6 @@ func (e Edge) String() string {
 		now, e.from.event.StationUic, action, e.from.event.TrainNumber, e.to.event.StationUic, then)
 }
 
-func (e Edge) PrintDetails() {
-	logger.Println("========= Edge (Begin )==========")
-	logger.Printf("* is travel %s", e.enRoute)
-	logger.Printf("* %s", e.String())
-	logger.Printf("* %s", e.from.event.String())
-	logger.Printf("* %s", e.to.event.String())
-	logger.Println("========= Edge (End) ==========")
-}
-
 func (e *Edge) Validate() {
 	buildEdge(e.from, e.to, e.enRoute)
 }
