@@ -14,6 +14,7 @@ type Vertex struct {
 	when           time.Time
 	timeFromSource int64
 	prev           *Vertex
+	inEdge         *Edge
 }
 
 type VertexKey string
@@ -23,11 +24,10 @@ func HashKey(stationid string, time string) VertexKey {
 }
 
 func NewVertex(time time.Time, event *models.TrainEvent) *Vertex {
-	return &Vertex{event, time, MAX_DISTANCE, nil}
+	return &Vertex{event, time, MAX_DISTANCE, nil, nil}
 }
 
 func (v Vertex) HashKey() VertexKey {
-	//return VertexKey(fmt.Sprintf("%s:%s", v.event.StationUic, v.when.String()))
 	return HashKey(v.event.StationUic, v.when.String())
 }
 
@@ -79,6 +79,5 @@ func ToVertices(events []models.TrainEvent) []*Vertex {
 // Skipping arrivals without time
 // S-tog don't have timing data, so we ignore them
 func isUsable(t models.TrainEvent) bool {
-	return len(t.ScheduledArrival) > 0
 	return len(t.ScheduledArrival) > 0 && len(t.ScheduledDeparture) > 0
 }
