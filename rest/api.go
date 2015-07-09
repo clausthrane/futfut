@@ -27,6 +27,8 @@ func NewAPIWithWebroot(r *RequestHandler, webroot string) http.Handler {
 
 	api.HandleFunc("/api/v1/trains/{trainid}", chain(errorHandler(r.HandleTrainStopInfo), CORS))
 
+	api.HandleFunc("/status", chain(errorHandler(r.HandleStatusRequest), CORS))
+
 	api.PathPrefix("/").Handler(http.FileServer(http.Dir(webroot)))
 	return handlers.CombinedLoggingHandler(os.Stdout, api)
 }
