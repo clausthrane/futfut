@@ -56,7 +56,7 @@ func (c *cachingfacade) GetStation(stationid string) (chan *models.StationList, 
 }
 
 func (c *cachingfacade) GetStations() (chan *models.StationList, chan error) {
-	logger.Println("Intercepting request for GetStatins()")
+	//logger.Println("Intercepting request for GetStatins()")
 	success, failure := make(chan *models.StationList), make(chan error)
 	go func() {
 		if cachedStationList == nil {
