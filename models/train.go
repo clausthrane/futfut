@@ -42,9 +42,8 @@ type TrainEvent struct {
 }
 
 func (t *TrainEvent) String() string {
-	return fmt.Sprintf("Train : %s towards %s expected at Station %s at %s leaving at %s",
+	return fmt.Sprintf("Train (%s) expected at Station (%s) at %s leaving at %s",
 		t.TrainNumber,
-		t.DestinationName,
 		t.StationUic,
 		t.HumanReadableArrivalDate(),
 		t.HumanReadableDepartureDate())
