@@ -9,16 +9,16 @@ import (
 func TestFifoQueue(t *testing.T) {
 	assert := assert.New(t)
 
-	e1 := &models.Train{"event_id1", "station_id1", "type", "end_dest", 123, "track1",
+	e1 := &models.TrainEvent{"event_id1", "station_id1", "station_name", "type", "end_dest", 123, "track1",
 		"", "Train1", "86", "/Date(1436068203501)/", "", "", "", false, "", "", "",
 	}
 
-	e2 := &models.Train{"event_id2", "station_id2", "type", "end_dest", 123, "track1",
+	e2 := &models.TrainEvent{"event_id2", "station_id2", "station_name", "type", "end_dest", 123, "track1",
 		"", "Train2", "86", "/Date(1436068203502)/",
 		"", "", "", false, "", "", "",
 	}
 
-	e3 := &models.Train{"event_id3", "station_id3", "type", "end_dest", 123, "track1",
+	e3 := &models.TrainEvent{"event_id3", "station_id3", "station_name", "type", "end_dest", 123, "track1",
 		"", "Train2", "86", "/Date(1436068203503)/",
 		"", "", "", false, "", "", "",
 	}
@@ -47,11 +47,11 @@ func TestFifoQueue(t *testing.T) {
 func TestContains(t *testing.T) {
 	assert := assert.New(t)
 
-	e1 := &models.Train{"event_id1", "station_id1", "type", "end_dest", 123, "track1",
+	e1 := &models.TrainEvent{"event_id1", "station_id1", "station_name", "type", "end_dest", 123, "track1",
 		"", "Train1", "86", "/Date(1436068203501)/", "", "", "", false, "", "", "",
 	}
 
-	e2 := &models.Train{"event_id2", "station_id2", "type", "end_dest", 123, "track1",
+	e2 := &models.TrainEvent{"event_id2", "station_id2", "station_name", "type", "end_dest", 123, "track1",
 		"", "Train2", "86", "/Date(1436068203502)/",
 		"", "", "", false, "", "", "",
 	}

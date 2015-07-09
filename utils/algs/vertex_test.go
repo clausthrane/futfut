@@ -9,7 +9,7 @@ import (
 
 func TestToVertex(t *testing.T) {
 	assert := assert.New(t)
-	in := []models.Train{e1, e2, e3}
+	in := []models.TrainEvent{e1, e2, e3}
 
 	lout := ToVertices(in)
 

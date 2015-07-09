@@ -11,23 +11,23 @@ import (
 	"time"
 )
 
-var e1 models.Train
-var e2 models.Train
-var e3 models.Train
+var e1 models.TrainEvent
+var e2 models.TrainEvent
+var e3 models.TrainEvent
 
 func TestMain(m *testing.M) {
 	logger.Println("Setting default test values in TestSuite")
-	e1 = models.Train{"event_id1", "station_id1", "type", "end_dest", 123, "track1",
+	e1 = models.TrainEvent{"event_id1", "station_id1", "station_name", "type", "end_dest", 123, "track1",
 		"", "Train1", "86", "/Date(1436068203501)/", "/Date(1436068203503)/",
 		"", "", false, "", "", "",
 	}
 
-	e2 = models.Train{"event_id2", "station_id2", "type", "end_dest", 123, "track1",
+	e2 = models.TrainEvent{"event_id2", "station_id2", "station_name", "type", "end_dest", 123, "track1",
 		"", "Train2", "86", "/Date(1436068203505)/", "/Date(1436068203507)/",
 		"", "", false, "", "", "",
 	}
 
-	e3 = models.Train{"event_id3", "station_id3", "type", "end_dest", 123, "track1",
+	e3 = models.TrainEvent{"event_id3", "station_id3", "station_name", "type", "end_dest", 123, "track1",
 		"", "Train2", "86", "/Date(1436068203508)/", "/Date(1436068203510)/",
 		"", "", false, "", "", "",
 	}
@@ -35,13 +35,37 @@ func TestMain(m *testing.M) {
 }
 
 func TestDijkstra(t *testing.T) {
+	assert := assert.New(t)
+
 	data := loadData(t)
 
-	// Vertex(at 8600192 @ 2015-07-05 16:45:00 +0800 CST)
-	from := services.StationID("8600646")
-	to := services.StationID("8600783")
+	//fromid := "8600020"
+	toid := "8600029"
 
-	Dijkstra(data, from, "", to, "")
+	var from *models.TrainEvent
+	var to *models.TrainEvent
+	for idx, _ := range data.Events {
+		e := &data.Events[idx]
+		if e.ID == "b24ba020-7545-43b0-8135-48fffe742345" {
+			Dijkstra(data, e, services.StationID(toid))
+
+			if from == nil {
+				logger.Printf("Trying src %s %v", data.Events[idx].ID, data.Events[idx])
+				from = e
+			}
+		}
+	}
+
+	logger.Println(from)
+	logger.Println(to)
+
+	out, err := Dijkstra(data, from, services.StationID(toid))
+	assert.Nil(err)
+	assert.NotNil(out)
+	for _, evnt := range out.Events {
+		logger.Printf("##> %v", evnt)
+	}
+
 }
 
 func TestToEdgeMap(t *testing.T) {
@@ -58,8 +82,7 @@ func TestToEdgeMap(t *testing.T) {
 		NewVertex(e1.ScheduledArrivalDate().Add(6*time.Minute), &e4),
 	}
 
-	out, _, _ := ToEdgeMap(in, services.StationID(in[0].event.StationUic),
-		services.StationID(in[3].event.StationUic), "", "")
+	out := ToEdgeMap(in)
 
 	assert.Equal(4, len(out), "Comming in on v1 only v1,v2,v3,v4 has extension")
 
@@ -72,7 +95,7 @@ func TestToEdgeMap(t *testing.T) {
 }
 
 // Not a test
-func loadData(t *testing.T) *models.TrainList {
+func loadData(t *testing.T) *models.TrainEventList {
 
 	// quickest way
 	mockserver.HttpServerDSBTestApi(t, 44444)
@@ -83,6 +106,6 @@ func loadData(t *testing.T) *models.TrainList {
 	case response := <-successC:
 		return response
 	case <-errC:
-		return &models.TrainList{nil}
+		return &models.TrainEventList{nil}
 	}
 }

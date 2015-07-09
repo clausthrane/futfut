@@ -70,7 +70,6 @@ func (e *Edge) Validate() {
 // Price calculates the distance in minutes from 'from' to 'to'
 func (e Edge) Price() int64 {
 	dur := e.to.when.Sub(e.from.when)
-	//logger.Printf("Edge from %s to %s takes %s", e.from.when, e.to.when, dur)
 	return int64(dur) / int64(time.Minute)
 }
 

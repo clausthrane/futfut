@@ -10,7 +10,7 @@ import (
 const MAX_DISTANCE int64 = math.MaxInt64
 
 type Vertex struct {
-	event          *models.Train
+	event          *models.TrainEvent
 	when           time.Time
 	timeFromSource int64
 	prev           *Vertex
@@ -22,7 +22,7 @@ func HashKey(stationid string, time string) VertexKey {
 	return VertexKey(fmt.Sprintf("%s:%s", stationid, time))
 }
 
-func NewVertex(time time.Time, event *models.Train) *Vertex {
+func NewVertex(time time.Time, event *models.TrainEvent) *Vertex {
 	return &Vertex{event, time, MAX_DISTANCE, nil}
 }
 
@@ -58,7 +58,7 @@ func (v *Vertex) GetPrev() *Vertex {
 // Makes all vertices in the graph
 //
 //
-func ToVertices(events []models.Train) []*Vertex {
+func ToVertices(events []models.TrainEvent) []*Vertex {
 	list := make([]*Vertex, 0, len(events))
 	for i, e := range events {
 		if isUsable(e) {
@@ -78,6 +78,6 @@ func ToVertices(events []models.Train) []*Vertex {
 
 // Skipping arrivals without time
 // S-tog don't have timing data, so we ignore them
-func isUsable(t models.Train) bool {
+func isUsable(t models.TrainEvent) bool {
 	return len(t.ScheduledArrival) > 0
 }

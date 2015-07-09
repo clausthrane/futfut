@@ -52,6 +52,7 @@ func TestPartitionByTrainBumber(t *testing.T) {
 	assert.Equal(2, len(out))
 	assert.Equal(2, len(out["Train2"]))
 	assert.Equal("Train2", out["Train2"][0].event.TrainNumber)
+	assert.Equal("Train2", out["Train2"][1].event.TrainNumber)
 	assert.True(len(out["Train2"][0].event.ScheduledArrival) > 0, "events still have their timestamps")
 }
 
@@ -67,7 +68,7 @@ func TestEdgesOnRoute(t *testing.T) {
 	assert.Equal(1, len(edges))
 }
 
-func TestEdgesAtStation(t *testing.T) {
+func TestWaitEdges(t *testing.T) {
 	assert := assert.New(t)
 
 	e4 := e1
@@ -85,20 +86,4 @@ func TestEdgesAtStation(t *testing.T) {
 
 	out := WaitEdges(in)
 	assert.Equal(10, len(out))
-
-	//for _, edge := range out {
-	//	logger.Println(edge.String())
-	//}
-}
-
-func TestWaitEdges(t *testing.T) {
-	t.Fail()
-}
-
-func TestTravelEdges(t *testing.T) {
-	t.Fail()
-}
-
-func TestPartitionAndConvert(t *testing.T) {
-	t.Fail()
 }
