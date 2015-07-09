@@ -22,7 +22,7 @@ func NewAPIWithWebroot(r *RequestHandler, webroot string) http.Handler {
 	api.HandleFunc("/api/v1/stations/{stationid}/details", chain(errorHandler(r.HandleStationsDetailRequest), CORS))
 
 	api.HandleFunc("/api/v1/departures", chain(errorHandler(r.HandleAllTrainsRequest), CORS))
-	api.HandleFunc("/api/v1/departures/from/{fromid}", chain(errorHandler(r.HandleDeparturesBetween), CORS))
+	api.HandleFunc("/api/v1/departures/from/{fromid}", chain(errorHandler(r.HandleDeparturesForStation), CORS))
 	api.HandleFunc("/api/v1/departures/from/{fromid}/to/{toid}", chain(errorHandler(r.HandleDeparturesBetween), CORS))
 
 	api.HandleFunc("/api/v1/trains/{trainid}", chain(errorHandler(r.HandleTrainStopInfo), CORS))
