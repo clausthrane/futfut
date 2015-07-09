@@ -36,10 +36,12 @@ type TrainConverter interface {
 	ConvertTrain(*models.TrainEvent) (*JSONTrainEvent, error)
 }
 
+// NewTrainConverter returns an instance of TrainConverter
 func NewTrainConverter() TrainConverter {
 	return &trainConverter{}
 }
 
+// ConvertTrainList takes a models.TrainEventList and returns a JSONTrainEventlist
 func (c trainConverter) ConvertTrainList(list *models.TrainEventList) *JSONTrainEventList {
 	dtos := []JSONTrainEvent{}
 	for _, t := range list.Events {
@@ -50,6 +52,7 @@ func (c trainConverter) ConvertTrainList(list *models.TrainEventList) *JSONTrain
 	return &JSONTrainEventList{len(dtos), dtos}
 }
 
+// ConvertTrain takes a models.TrainEvent and returns a JSONTrainEvent
 func (c trainConverter) ConvertTrain(t *models.TrainEvent) (*JSONTrainEvent, error) {
 	trainNumner, err := strconv.Atoi(t.TrainNumber)
 	currentStationId, err := strconv.Atoi(t.StationUic)

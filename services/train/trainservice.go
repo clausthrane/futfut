@@ -4,6 +4,7 @@ import (
 	"github.com/clausthrane/futfut/datasources/dsb"
 	"github.com/clausthrane/futfut/models"
 	"github.com/clausthrane/futfut/services"
+	"github.com/clausthrane/futfut/utils/algs"
 	"log"
 	"os"
 	"time"
@@ -65,8 +66,22 @@ func (s *trainService) Stops(trainID services.TrainID) (result *models.TrainEven
 }
 
 func (s *trainService) DeparturesBetween(from services.StationID, to services.StationID) (result *models.TrainEventList, err error) {
-	// TODO
-	return s.TrainsByKeyValue(STATION_UIC, string(from))
+	logger.Printf("Computing route from %v to %v", from, to)
+
+	if world, err := s.getAllTrains(); err == nil {
+		if departures, departuresErr := s.TrainsFromStation(from); departuresErr == nil {
+			for departureCandidateIdx, _ := range departures.Events {
+				if path, err := graph.Dijkstra(world, &departures.Events[departureCandidateIdx], to); err == nil {
+					return path, nil
+				}
+			}
+			return nil, services.NewServiceValidationError("Cannot find any route")
+		} else {
+			return nil, departuresErr
+		}
+	} else {
+		return nil, err
+	}
 }
 
 func (s *trainService) TrainsByKeyValue(key string, value string) (result *models.TrainEventList, err error) {

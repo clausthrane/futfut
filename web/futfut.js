@@ -40,9 +40,7 @@ function FutfutCtrl($scope, $http) {
     }
 
     function startLoading(msg) {
-        setTimeout(function(){
-            $scope.loading = msg
-        },300)
+        $scope.loading = msg
     }
 
     function stopLoading() {
@@ -68,12 +66,5 @@ function FutfutCtrl($scope, $http) {
         } else {
             $scope.temperror = error
         }
-    }
-
-    function timeNA(time) {
-        if (time === "00:00"){
-            return "-"
-        }
-        return time
     }
 }
